@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "내곁의 디데이",
+    "slug": "naegyeot-dday",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.naegyeot.dday"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.naegyeot.dday"
+    },
+    "scheme": "naegyeotdday",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "color": "#C8553D"
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "DdayWidget",
+              "label": "내곁의 디데이",
+              "description": "가까운 디데이를 홈 화면에 보여줘요",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 3600000
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}
