@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native (prebuild로 재생성하는 경우)
+/android
+/ios
+
+# Metro
+.metro-health-check*
+
+# Debug / logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# macOS
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# 환경 변수 (광고 ID 등). 예시 파일(.env.example)만 커밋한다.
+.env
+.env.*
+!.env.example
+
+# 광고 설정 (실제 AdMob 앱 ID·광고 단위 ID)
+ads.config.json
+src/config/ads.local.ts
+
+# Android 서명
+*.jks
+*.keystore
+!debug.keystore
+keystore.properties
+signing.properties
+android/app/release/
+
+# iOS 서명 / 인증서
+*.p8
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
+
+# 스토어 업로드·서비스 계정 키
+*service-account*.json
+google-services.json
+GoogleService-Info.plist
+
+# EAS / 로컬 자격 증명
+credentials.json
+credentials/
