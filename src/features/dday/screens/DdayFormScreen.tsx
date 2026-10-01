@@ -1,0 +1,300 @@
+import { Stack, useRouter } from 'expo-router';
+import { useState } from 'react';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+
+import { PrimaryButton } from '../../../components/PrimaryButton';
+import { colors, fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
+import { DateField } from '../components/DateField';
+import { useDdayStore } from '../DdayStoreProvider';
+import { toLocalDate } from '../logic/dates';
+import { NOTIFY_HOUR } from '../notifications/notificationPlan';
+import { requestNotificationPermission } from '../notifications/notificationScheduler';
+import { ddayStrings } from '../strings';
+import {
+  type DdayInput,
+  hasNotification,
+  MAX_TITLE_LENGTH,
+  NOTIFY_DAYS_BEFORE_OPTIONS,
+  type NotifyDaysBefore,
+} from '../types';
+
+type DdayFormScreenProps = {
+  editingId?: string;
+};
+
+function validateTitle(title: string): string | null {
+  const trimmed = title.trim();
+  if (trimmed.length === 0) return ddayStrings.titleRequired;
+  if (trimmed.length > MAX_TITLE_LENGTH) return ddayStrings.titleTooLong(MAX_TITLE_LENGTH);
+  return null;
+}
+
+export function DdayFormScreen({ editingId }: DdayFormScreenProps) {
+  const router = useRouter();
+  const { items, addDday, updateDday } = useDdayStore();
+  const editing = editingId ? items.find((item) => item.id === editingId) : undefined;
+
+  const [title, setTitle] = useState(editing?.title ?? '');
+  const [date, setDate] = useState(editing?.date ?? toLocalDate(new Date()));
+  const [repeatYearly, setRepeatYearly] = useState(editing?.repeatYearly ?? false);
+  const [notifyOnDay, setNotifyOnDay] = useState(editing?.notifyOnDay ?? false);
+  const [notifyDaysBefore, setNotifyDaysBefore] = useState<NotifyDaysBefore | null>(
+    editing?.notifyDaysBefore ?? null,
+  );
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  if (editingId && !editing) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.hint}>{ddayStrings.notFound}</Text>
+      </View>
+    );
+  }
+
+  const save = async () => {
+    if (isSaving) return;
+    const error = validateTitle(title);
+    setTitleError(error);
+    if (error) return;
+
+    const input: DdayInput = {
+      title: title.trim(),
+      date,
+      repeatYearly,
+      notifyOnDay,
+      notifyDaysBefore,
+    };
+
+    setIsSaving(true);
+    try {
+      const permissionGranted = hasNotification(input)
+        ? await requestNotificationPermission()
+        : true;
+      if (editingId) {
+        await updateDday(editingId, input);
+      } else {
+        await addDday(input);
+      }
+      if (!permissionGranted) {
+        Alert.alert(ddayStrings.permissionDeniedTitle, ddayStrings.permissionDeniedBody);
+      }
+      router.back();
+    } catch (saveError) {
+      Alert.alert(
+        ddayStrings.saveFailed,
+        saveError instanceof Error ? saveError.message : String(saveError),
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <Stack.Screen options={{ title: editingId ? ddayStrings.editTitle : ddayStrings.addTitle }} />
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <View style={styles.field}>
+          <Text style={styles.label}>{ddayStrings.fieldTitle}</Text>
+          <TextInput
+            value={title}
+            onChangeText={(text) => {
+              setTitle(text);
+              if (titleError) setTitleError(null);
+            }}
+            placeholder={ddayStrings.fieldTitlePlaceholder}
+            placeholderTextColor={colors.textMuted}
+            maxLength={MAX_TITLE_LENGTH}
+            accessibilityLabel={ddayStrings.fieldTitle}
+            returnKeyType="done"
+            style={[styles.input, titleError !== null && styles.inputError]}
+          />
+          {titleError !== null && <Text style={styles.error}>{titleError}</Text>}
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>{ddayStrings.fieldDate}</Text>
+          <DateField value={date} onChange={setDate} accessibilityLabel={ddayStrings.fieldDate} />
+        </View>
+
+        <ToggleRow
+          label={ddayStrings.fieldRepeat}
+          hint={ddayStrings.fieldRepeatHint}
+          value={repeatYearly}
+          onChange={setRepeatYearly}
+        />
+        <ToggleRow
+          label={ddayStrings.fieldNotifyOnDay}
+          value={notifyOnDay}
+          onChange={setNotifyOnDay}
+        />
+
+        <View style={styles.field}>
+          <Text style={styles.label}>{ddayStrings.fieldNotifyBefore}</Text>
+          <View style={styles.chips}>
+            <Chip
+              label={ddayStrings.notifyBeforeNone}
+              selected={notifyDaysBefore === null}
+              onPress={() => setNotifyDaysBefore(null)}
+            />
+            {NOTIFY_DAYS_BEFORE_OPTIONS.map((days) => (
+              <Chip
+                key={days}
+                label={ddayStrings.notifyBeforeOption(days)}
+                selected={notifyDaysBefore === days}
+                onPress={() => setNotifyDaysBefore(days)}
+              />
+            ))}
+          </View>
+          <Text style={styles.hint}>{ddayStrings.notifyTimeHint(NOTIFY_HOUR)}</Text>
+        </View>
+
+        <PrimaryButton
+          label={isSaving ? ddayStrings.saving : ddayStrings.save}
+          onPress={() => void save()}
+          disabled={isSaving}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}
+
+type ToggleRowProps = {
+  label: string;
+  hint?: string;
+  value: boolean;
+  onChange: (value: boolean) => void;
+};
+
+function ToggleRow({ label, hint, value, onChange }: ToggleRowProps) {
+  return (
+    <View style={styles.toggleRow}>
+      <View style={styles.toggleText}>
+        <Text style={styles.label}>{label}</Text>
+        {hint && <Text style={styles.hint}>{hint}</Text>}
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onChange}
+        accessibilityLabel={label}
+        trackColor={{ true: colors.primary }}
+      />
+    </View>
+  );
+}
+
+type ChipProps = {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+};
+
+function Chip({ label, selected, onPress }: ChipProps) {
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      style={[styles.chip, selected && styles.chipSelected]}
+    >
+      <Text style={[styles.chipLabel, selected && styles.chipLabelSelected]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+  content: {
+    padding: spacing.lg,
+    gap: spacing.xl,
+  },
+  field: {
+    gap: spacing.sm,
+  },
+  label: {
+    fontSize: fontSize.body,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  input: {
+    minHeight: MIN_TOUCH_SIZE,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    fontSize: fontSize.body,
+    color: colors.text,
+    backgroundColor: colors.surface,
+  },
+  inputError: {
+    borderColor: colors.danger,
+  },
+  error: {
+    fontSize: fontSize.caption,
+    color: colors.danger,
+  },
+  hint: {
+    fontSize: fontSize.caption,
+    color: colors.textMuted,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    minHeight: MIN_TOUCH_SIZE,
+  },
+  toggleText: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  chip: {
+    minHeight: MIN_TOUCH_SIZE,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  chipSelected: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+  chipLabel: {
+    fontSize: fontSize.body,
+    color: colors.text,
+  },
+  chipLabelSelected: {
+    color: colors.primary,
+    fontWeight: '600',
+  },
+});
