@@ -5,9 +5,14 @@ export type NotifyDaysBefore = (typeof NOTIFY_DAYS_BEFORE_OPTIONS)[number];
 
 export const MAX_TITLE_LENGTH = 30;
 
+export const DDAY_CATEGORIES = ['couple', 'personal', 'work'] as const;
+export type DdayCategory = (typeof DDAY_CATEGORIES)[number];
+export const DEFAULT_CATEGORY: DdayCategory = 'personal';
+
 export type Dday = {
   id: string;
   title: string;
+  category: DdayCategory;
   /** 기준 날짜. 매년 반복이면 월·일만 반복에 쓰이고, 연도는 지난 일수 계산에 쓰인다. */
   date: LocalDate;
   repeatYearly: boolean;
@@ -19,7 +24,7 @@ export type Dday = {
 
 export type DdayInput = Pick<
   Dday,
-  'title' | 'date' | 'repeatYearly' | 'notifyOnDay' | 'notifyDaysBefore'
+  'title' | 'category' | 'date' | 'repeatYearly' | 'notifyOnDay' | 'notifyDaysBefore'
 >;
 
 export function hasNotification(item: Pick<Dday, 'notifyOnDay' | 'notifyDaysBefore'>): boolean {

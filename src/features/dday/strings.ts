@@ -1,9 +1,30 @@
+import type { DdayCategory } from './types';
+
+export const categoryLabels: Record<DdayCategory, string> = {
+  couple: '연인',
+  personal: '개인',
+  work: '업무',
+};
+
 export const ddayStrings = {
   appTitle: '내곁의 디데이',
   addTitle: '디데이 추가',
   editTitle: '디데이 수정',
-  detailTitle: '디데이',
   add: '추가',
+  filterAll: '전체',
+  today: (date: string) => `오늘 · ${date}`,
+  countSummary: (count: number) => `디데이 ${count}개`,
+  emptyCategory: '이 분류에는 아직 디데이가 없어요.',
+  fieldCategory: '분류',
+  sectionBasic: '기본 정보',
+  sectionRepeat: '반복',
+  sectionNotification: '알림',
+  datePickerTitle: '날짜 선택',
+  datePickerToday: '오늘',
+  datePickerConfirm: '확인',
+  year: '년',
+  month: '월',
+  day: '일',
   emptyTitle: '아직 디데이가 없어요',
   emptyBody: '기다리는 날이나 기념하고 싶은 날을 추가해 보세요.',
   emptyAction: '첫 디데이 추가하기',

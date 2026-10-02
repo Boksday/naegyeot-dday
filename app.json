@@ -29,7 +29,6 @@
           "color": "#C8553D"
         }
       ],
-      "@react-native-community/datetimepicker",
       [
         "react-native-android-widget",
         {

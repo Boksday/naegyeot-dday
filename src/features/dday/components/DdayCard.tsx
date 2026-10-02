@@ -1,10 +1,11 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, fontSize, radius, spacing } from '../../../theme/tokens';
+import { categoryColors, colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
 import { formatKoreanDate, type LocalDate } from '../logic/dates';
 import { getDayCount, getDdayStatus } from '../logic/ddayStatus';
-import { ddayStrings } from '../strings';
+import { categoryLabels, ddayStrings } from '../strings';
 import type { Dday } from '../types';
+import { CategoryIcon } from './CategoryIcon';
 
 type DdayCardProps = {
   item: Dday;
@@ -15,25 +16,48 @@ type DdayCardProps = {
 export function DdayCard({ item, today, onPress }: DdayCardProps) {
   const status = getDdayStatus(item, today);
   const dayCount = !item.repeatYearly ? getDayCount(item.date, today) : null;
+  const palette = categoryColors[item.category];
+  const isToday = status.daysUntil === 0;
+  const isPast = status.daysUntil < 0;
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${item.title}, ${status.label}, ${formatKoreanDate(status.targetDate)}`}
+      accessibilityLabel={`${categoryLabels[item.category]}, ${item.title}, ${status.label}, ${formatKoreanDate(status.targetDate)}`}
       onPress={() => onPress(item.id)}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <View style={styles.info}>
-        <View style={styles.titleRow}>
-          <Text style={styles.title} numberOfLines={1}>
-            {item.title}
-          </Text>
-          {item.repeatYearly && <Text style={styles.badge}>{ddayStrings.repeatBadge}</Text>}
-        </View>
-        <Text style={styles.date}>{formatKoreanDate(status.targetDate)}</Text>
-        {dayCount !== null && <Text style={styles.date}>{ddayStrings.dayCount(dayCount)}</Text>}
+      <View style={[styles.accent, { backgroundColor: palette.strong }]} />
+      <View style={[styles.iconWrap, { backgroundColor: palette.soft }]}>
+        <CategoryIcon category={item.category} size={22} />
       </View>
-      <Text style={styles.label}>{status.label}</Text>
+      <View style={styles.info}>
+        <Text style={styles.title} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={styles.meta} numberOfLines={1}>
+          {formatKoreanDate(status.targetDate)}
+          {item.repeatYearly ? ` · ${ddayStrings.repeatBadge}` : ''}
+        </Text>
+        {dayCount !== null && <Text style={styles.meta}>{ddayStrings.dayCount(dayCount)}</Text>}
+      </View>
+      <View
+        style={[
+          styles.labelPill,
+          {
+            backgroundColor: isToday ? palette.strong : isPast ? colors.surfaceMuted : palette.soft,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.label,
+            { color: isToday ? colors.onPrimary : isPast ? colors.textMuted : palette.strong },
+          ]}
+        >
+          {status.label}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -44,45 +68,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    padding: spacing.lg,
+    paddingVertical: spacing.lg,
+    paddingRight: spacing.lg,
+    paddingLeft: spacing.lg + 4,
     gap: spacing.md,
+    overflow: 'hidden',
+    ...shadow,
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.8,
+  },
+  accent: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+  },
+  iconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   info: {
     flex: 1,
-    gap: spacing.xs,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
+    gap: 2,
   },
   title: {
-    flexShrink: 1,
     fontSize: fontSize.title,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
   },
-  badge: {
-    fontSize: fontSize.caption,
-    color: colors.primary,
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    overflow: 'hidden',
-  },
-  date: {
+  meta: {
     fontSize: fontSize.caption,
     color: colors.textMuted,
   },
+  labelPill: {
+    minWidth: 72,
+    alignItems: 'center',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
   label: {
-    fontSize: fontSize.headline,
-    fontWeight: '700',
-    color: colors.primary,
+    fontSize: fontSize.title,
+    fontWeight: '800',
   },
 });

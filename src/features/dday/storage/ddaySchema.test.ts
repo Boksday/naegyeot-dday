@@ -4,6 +4,7 @@ import { parseStoredData, serializeStoredData } from './ddaySchema';
 const ITEM: Dday = {
   id: 'a',
   title: '우리 만난 날',
+  category: 'couple',
   date: '2025-03-01',
   repeatYearly: true,
   notifyOnDay: true,
@@ -26,17 +27,31 @@ describe('parseStoredData', () => {
   });
 
   it('항목 하나라도 형식이 틀리면 실패한다', () => {
-    const raw = JSON.stringify({ version: 1, items: [ITEM, { ...ITEM, date: '2025-02-30' }] });
+    const raw = JSON.stringify({ version: 2, items: [ITEM, { ...ITEM, date: '2025-02-30' }] });
     expect(parseStoredData(raw)).toEqual({ ok: false, reason: 'invalid-data' });
   });
 
   it('허용하지 않은 미리 알림 일수는 실패한다', () => {
-    const raw = JSON.stringify({ version: 1, items: [{ ...ITEM, notifyDaysBefore: 5 }] });
+    const raw = JSON.stringify({ version: 2, items: [{ ...ITEM, notifyDaysBefore: 5 }] });
     expect(parseStoredData(raw)).toEqual({ ok: false, reason: 'invalid-data' });
   });
 
   it('더 새로운 버전의 데이터는 덮어쓰지 않도록 실패한다', () => {
-    const raw = JSON.stringify({ version: 2, items: [] });
+    const raw = JSON.stringify({ version: 3, items: [] });
     expect(parseStoredData(raw)).toEqual({ ok: false, reason: 'unsupported-version' });
+  });
+
+  it('알 수 없는 분류는 실패한다', () => {
+    const raw = JSON.stringify({ version: 2, items: [{ ...ITEM, category: 'family' }] });
+    expect(parseStoredData(raw)).toEqual({ ok: false, reason: 'invalid-data' });
+  });
+
+  it('버전 1 기록은 지우지 않고 개인 분류로 옮긴다', () => {
+    const { category: _category, ...v1Item } = ITEM;
+    const raw = JSON.stringify({ version: 1, items: [v1Item] });
+    expect(parseStoredData(raw)).toEqual({
+      ok: true,
+      items: [{ ...v1Item, category: 'personal' }],
+    });
   });
 });

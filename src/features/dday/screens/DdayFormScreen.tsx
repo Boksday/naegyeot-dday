@@ -1,5 +1,5 @@
 import { Stack, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -12,9 +12,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Card } from '../../../components/Card';
 import { PrimaryButton } from '../../../components/PrimaryButton';
 import { colors, fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
+import { CategoryPicker } from '../components/CategoryChips';
 import { DateField } from '../components/DateField';
 import { useDdayStore } from '../DdayStoreProvider';
 import { toLocalDate } from '../logic/dates';
@@ -22,7 +25,9 @@ import { NOTIFY_HOUR } from '../notifications/notificationPlan';
 import { requestNotificationPermission } from '../notifications/notificationScheduler';
 import { ddayStrings } from '../strings';
 import {
+  type DdayCategory,
   type DdayInput,
+  DEFAULT_CATEGORY,
   hasNotification,
   MAX_TITLE_LENGTH,
   NOTIFY_DAYS_BEFORE_OPTIONS,
@@ -31,6 +36,7 @@ import {
 
 type DdayFormScreenProps = {
   editingId?: string;
+  initialCategory?: DdayCategory;
 };
 
 function validateTitle(title: string): string | null {
@@ -40,12 +46,16 @@ function validateTitle(title: string): string | null {
   return null;
 }
 
-export function DdayFormScreen({ editingId }: DdayFormScreenProps) {
+export function DdayFormScreen({ editingId, initialCategory }: DdayFormScreenProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { items, addDday, updateDday } = useDdayStore();
   const editing = editingId ? items.find((item) => item.id === editingId) : undefined;
 
   const [title, setTitle] = useState(editing?.title ?? '');
+  const [category, setCategory] = useState<DdayCategory>(
+    editing?.category ?? initialCategory ?? DEFAULT_CATEGORY,
+  );
   const [date, setDate] = useState(editing?.date ?? toLocalDate(new Date()));
   const [repeatYearly, setRepeatYearly] = useState(editing?.repeatYearly ?? false);
   const [notifyOnDay, setNotifyOnDay] = useState(editing?.notifyOnDay ?? false);
@@ -71,6 +81,7 @@ export function DdayFormScreen({ editingId }: DdayFormScreenProps) {
 
     const input: DdayInput = {
       title: title.trim(),
+      category,
       date,
       repeatYearly,
       notifyOnDay,
@@ -108,68 +119,93 @@ export function DdayFormScreen({ editingId }: DdayFormScreenProps) {
     >
       <Stack.Screen options={{ title: editingId ? ddayStrings.editTitle : ddayStrings.addTitle }} />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.field}>
-          <Text style={styles.label}>{ddayStrings.fieldTitle}</Text>
-          <TextInput
-            value={title}
-            onChangeText={(text) => {
-              setTitle(text);
-              if (titleError) setTitleError(null);
-            }}
-            placeholder={ddayStrings.fieldTitlePlaceholder}
-            placeholderTextColor={colors.textMuted}
-            maxLength={MAX_TITLE_LENGTH}
-            accessibilityLabel={ddayStrings.fieldTitle}
-            returnKeyType="done"
-            style={[styles.input, titleError !== null && styles.inputError]}
-          />
-          {titleError !== null && <Text style={styles.error}>{titleError}</Text>}
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>{ddayStrings.fieldDate}</Text>
-          <DateField value={date} onChange={setDate} accessibilityLabel={ddayStrings.fieldDate} />
-        </View>
-
-        <ToggleRow
-          label={ddayStrings.fieldRepeat}
-          hint={ddayStrings.fieldRepeatHint}
-          value={repeatYearly}
-          onChange={setRepeatYearly}
-        />
-        <ToggleRow
-          label={ddayStrings.fieldNotifyOnDay}
-          value={notifyOnDay}
-          onChange={setNotifyOnDay}
-        />
-
-        <View style={styles.field}>
-          <Text style={styles.label}>{ddayStrings.fieldNotifyBefore}</Text>
-          <View style={styles.chips}>
-            <Chip
-              label={ddayStrings.notifyBeforeNone}
-              selected={notifyDaysBefore === null}
-              onPress={() => setNotifyDaysBefore(null)}
+        <Section title={ddayStrings.sectionBasic}>
+          <Field label={ddayStrings.fieldCategory}>
+            <CategoryPicker value={category} onChange={setCategory} />
+          </Field>
+          <Field label={ddayStrings.fieldTitle}>
+            <TextInput
+              value={title}
+              onChangeText={(text) => {
+                setTitle(text);
+                if (titleError) setTitleError(null);
+              }}
+              placeholder={ddayStrings.fieldTitlePlaceholder}
+              placeholderTextColor={colors.textMuted}
+              maxLength={MAX_TITLE_LENGTH}
+              accessibilityLabel={ddayStrings.fieldTitle}
+              returnKeyType="done"
+              style={[styles.input, titleError !== null && styles.inputError]}
             />
-            {NOTIFY_DAYS_BEFORE_OPTIONS.map((days) => (
-              <Chip
-                key={days}
-                label={ddayStrings.notifyBeforeOption(days)}
-                selected={notifyDaysBefore === days}
-                onPress={() => setNotifyDaysBefore(days)}
-              />
-            ))}
-          </View>
-          <Text style={styles.hint}>{ddayStrings.notifyTimeHint(NOTIFY_HOUR)}</Text>
-        </View>
+            {titleError !== null && <Text style={styles.error}>{titleError}</Text>}
+          </Field>
+          <Field label={ddayStrings.fieldDate}>
+            <DateField value={date} onChange={setDate} accessibilityLabel={ddayStrings.fieldDate} />
+          </Field>
+        </Section>
 
+        <Section title={ddayStrings.sectionRepeat}>
+          <ToggleRow
+            label={ddayStrings.fieldRepeat}
+            hint={ddayStrings.fieldRepeatHint}
+            value={repeatYearly}
+            onChange={setRepeatYearly}
+          />
+        </Section>
+
+        <Section title={ddayStrings.sectionNotification}>
+          <ToggleRow
+            label={ddayStrings.fieldNotifyOnDay}
+            value={notifyOnDay}
+            onChange={setNotifyOnDay}
+          />
+          <Field label={ddayStrings.fieldNotifyBefore}>
+            <View style={styles.chips}>
+              <OptionChip
+                label={ddayStrings.notifyBeforeNone}
+                selected={notifyDaysBefore === null}
+                onPress={() => setNotifyDaysBefore(null)}
+              />
+              {NOTIFY_DAYS_BEFORE_OPTIONS.map((days) => (
+                <OptionChip
+                  key={days}
+                  label={ddayStrings.notifyBeforeOption(days)}
+                  selected={notifyDaysBefore === days}
+                  onPress={() => setNotifyDaysBefore(days)}
+                />
+              ))}
+            </View>
+          </Field>
+          <Text style={styles.hint}>{ddayStrings.notifyTimeHint(NOTIFY_HOUR)}</Text>
+        </Section>
+      </ScrollView>
+
+      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
         <PrimaryButton
           label={isSaving ? ddayStrings.saving : ddayStrings.save}
           onPress={() => void save()}
           disabled={isSaving}
         />
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <Card style={styles.sectionCard}>{children}</Card>
+    </View>
+  );
+}
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View style={styles.field}>
+      <Text style={styles.label}>{label}</Text>
+      {children}
+    </View>
   );
 }
 
@@ -191,19 +227,20 @@ function ToggleRow({ label, hint, value, onChange }: ToggleRowProps) {
         value={value}
         onValueChange={onChange}
         accessibilityLabel={label}
-        trackColor={{ true: colors.primary }}
+        trackColor={{ true: colors.primary, false: colors.border }}
+        thumbColor={colors.surface}
       />
     </View>
   );
 }
 
-type ChipProps = {
+type OptionChipProps = {
   label: string;
   selected: boolean;
   onPress: () => void;
 };
 
-function Chip({ label, selected, onPress }: ChipProps) {
+function OptionChip({ label, selected, onPress }: OptionChipProps) {
   return (
     <Pressable
       accessibilityRole="radio"
@@ -231,6 +268,18 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.xl,
   },
+  section: {
+    gap: spacing.sm,
+  },
+  sectionTitle: {
+    fontSize: fontSize.caption,
+    fontWeight: '700',
+    color: colors.textMuted,
+    marginLeft: spacing.xs,
+  },
+  sectionCard: {
+    gap: spacing.lg,
+  },
   field: {
     gap: spacing.sm,
   },
@@ -241,13 +290,13 @@ const styles = StyleSheet.create({
   },
   input: {
     minHeight: MIN_TOUCH_SIZE,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.md,
     fontSize: fontSize.body,
     color: colors.text,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   inputError: {
     borderColor: colors.danger,
@@ -277,24 +326,28 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   chip: {
-    minHeight: MIN_TOUCH_SIZE,
+    minHeight: MIN_TOUCH_SIZE - 4,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
   },
   chipSelected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.primary,
   },
   chipLabel: {
     fontSize: fontSize.body,
     color: colors.text,
   },
   chipLabelSelected: {
-    color: colors.primary,
+    color: colors.onPrimary,
     fontWeight: '600',
+  },
+  footer: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    backgroundColor: colors.background,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
 });

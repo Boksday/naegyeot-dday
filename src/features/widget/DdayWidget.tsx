@@ -1,6 +1,6 @@
 import { FlexWidget, TextWidget } from 'react-native-android-widget';
 
-import { colors } from '../../theme/tokens';
+import { categoryColors, colors } from '../../theme/tokens';
 import type { WidgetEntry } from './widgetEntries';
 
 type DdayWidgetProps = {
@@ -53,7 +53,12 @@ export function DdayWidget({ entries }: DdayWidgetProps) {
             </FlexWidget>
             <TextWidget
               text={entry.label}
-              style={{ fontSize: 20, color: colors.primary, fontWeight: '700', marginLeft: 8 }}
+              style={{
+                fontSize: 20,
+                color: categoryColors[entry.category].strong,
+                fontWeight: '700',
+                marginLeft: 8,
+              }}
             />
           </FlexWidget>
         ))

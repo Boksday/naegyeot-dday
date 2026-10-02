@@ -6,6 +6,7 @@ function makeDday(overrides: Partial<Dday>): Dday {
     id: 'id',
     title: '시험',
     date: '2026-10-10',
+    category: 'personal',
     repeatYearly: false,
     notifyOnDay: true,
     notifyDaysBefore: null,

@@ -1,28 +1,42 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AssetPlaceholder } from '../../../components/AssetPlaceholder';
 import { PrimaryButton } from '../../../components/PrimaryButton';
-import { colors, fontSize, radius, spacing } from '../../../theme/tokens';
+import { colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
+import { type CategoryFilter, CategoryFilterChips } from '../components/CategoryChips';
 import { DdayCard } from '../components/DdayCard';
 import { useDdayStore } from '../DdayStoreProvider';
 import { useToday } from '../hooks/useToday';
+import { formatKoreanDate } from '../logic/dates';
 import { sortForDisplay } from '../logic/ddayStatus';
 import { ddayStrings } from '../strings';
+
+const FAB_SIZE = 60;
 
 export function DdayListScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const today = useToday();
   const { items, loadState, notificationSync, reload } = useDdayStore();
-  const sorted = useMemo(() => sortForDisplay(items, today), [items, today]);
+  const [filter, setFilter] = useState<CategoryFilter>('all');
+
+  const visible = useMemo(() => {
+    const filtered = filter === 'all' ? items : items.filter((item) => item.category === filter);
+    return sortForDisplay(filtered, today);
+  }, [items, filter, today]);
 
   const openDetail = useCallback(
     (id: string) => router.push({ pathname: '/dday/[id]', params: { id } }),
     [router],
   );
-  const openNew = useCallback(() => router.push('/edit'), [router]);
+  const openNew = useCallback(
+    () =>
+      router.push(filter === 'all' ? '/edit' : { pathname: '/edit', params: { category: filter } }),
+    [router, filter],
+  );
 
   if (loadState.status === 'loading') {
     return (
@@ -42,31 +56,63 @@ export function DdayListScreen() {
     );
   }
 
+  const header = (
+    <View style={styles.header}>
+      <View style={styles.brandRow}>
+        <AssetPlaceholder name="앱 로고" size={36} />
+        <View>
+          <Text style={styles.appTitle}>{ddayStrings.appTitle}</Text>
+          <Text style={styles.today}>{ddayStrings.today(formatKoreanDate(today))}</Text>
+        </View>
+      </View>
+      {items.length > 0 && <CategoryFilterChips value={filter} onChange={setFilter} />}
+      {notificationSync === 'permission-denied' && (
+        <Text style={styles.banner}>{ddayStrings.notificationBlocked}</Text>
+      )}
+    </View>
+  );
+
+  const empty =
+    items.length === 0 ? (
+      <View style={styles.empty}>
+        <AssetPlaceholder name="빈 화면 일러스트" size={120} showLabel />
+        <Text style={styles.emptyTitle}>{ddayStrings.emptyTitle}</Text>
+        <Text style={styles.emptyBody}>{ddayStrings.emptyBody}</Text>
+        <PrimaryButton label={ddayStrings.emptyAction} onPress={openNew} />
+      </View>
+    ) : (
+      <View style={styles.empty}>
+        <Text style={styles.emptyBody}>{ddayStrings.emptyCategory}</Text>
+      </View>
+    );
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={sorted}
+        data={visible}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <DdayCard item={item} today={today} onPress={openDetail} />}
-        contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 96 }]}
+        contentContainerStyle={[
+          styles.list,
+          { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + FAB_SIZE + 48 },
+        ]}
         ItemSeparatorComponent={Separator}
-        ListHeaderComponent={
-          notificationSync === 'permission-denied' ? (
-            <Text style={styles.banner}>{ddayStrings.notificationBlocked}</Text>
-          ) : null
-        }
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>{ddayStrings.emptyTitle}</Text>
-            <Text style={styles.emptyBody}>{ddayStrings.emptyBody}</Text>
-            <PrimaryButton label={ddayStrings.emptyAction} onPress={openNew} />
-          </View>
-        }
+        ListHeaderComponent={header}
+        ListEmptyComponent={empty}
       />
-      {sorted.length > 0 && (
-        <View style={[styles.fabArea, { bottom: insets.bottom + spacing.lg }]}>
-          <PrimaryButton label={ddayStrings.addTitle} onPress={openNew} />
-        </View>
+      {items.length > 0 && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={ddayStrings.addTitle}
+          onPress={openNew}
+          style={({ pressed }) => [
+            styles.fab,
+            { bottom: insets.bottom + spacing.xl },
+            pressed && styles.fabPressed,
+          ]}
+        >
+          <Text style={styles.fabText}>+</Text>
+        </Pressable>
       )}
     </View>
   );
@@ -92,8 +138,26 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   list: {
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
     flexGrow: 1,
+  },
+  header: {
+    gap: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  appTitle: {
+    fontSize: fontSize.headline,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  today: {
+    fontSize: fontSize.caption,
+    color: colors.textMuted,
   },
   separator: {
     height: spacing.md,
@@ -104,7 +168,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.caption,
     borderRadius: radius.sm,
     padding: spacing.md,
-    marginBottom: spacing.md,
     overflow: 'hidden',
   },
   empty: {
@@ -116,7 +179,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: fontSize.title,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
     textAlign: 'center',
   },
@@ -125,8 +188,25 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
   },
-  fabArea: {
+  fab: {
     position: 'absolute',
-    right: spacing.lg,
+    right: spacing.xl,
+    width: FAB_SIZE,
+    height: FAB_SIZE,
+    borderRadius: FAB_SIZE / 2,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadow,
+    elevation: 6,
+  },
+  fabPressed: {
+    opacity: 0.85,
+  },
+  fabText: {
+    fontSize: 32,
+    lineHeight: 36,
+    color: colors.onPrimary,
+    fontWeight: '400',
   },
 });

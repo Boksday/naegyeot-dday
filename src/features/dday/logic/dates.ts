@@ -11,7 +11,7 @@ export function isLeapYear(year: number): boolean {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 }
 
-function daysInMonth(year: number, month: number): number {
+export function daysInMonth(year: number, month: number): number {
   // Date.UTC의 day 0은 이전 달의 마지막 날이다.
   return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }

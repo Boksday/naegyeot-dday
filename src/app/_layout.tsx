@@ -17,9 +17,9 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: colors.background },
         }}
       >
-        <Stack.Screen name="index" options={{ title: ddayStrings.appTitle }} />
+        <Stack.Screen name="index" options={{ title: ddayStrings.appTitle, headerShown: false }} />
         <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="dday/[id]" options={{ title: ddayStrings.detailTitle }} />
+        <Stack.Screen name="dday/[id]" options={{ title: '' }} />
       </Stack>
     </DdayStoreProvider>
   );
