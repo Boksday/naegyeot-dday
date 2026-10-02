@@ -2,12 +2,12 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { type Theme, useThemedStyles } from '../../../theme/useTheme';
 
-const BAR_WIDTH = 14;
-const BAR_HEIGHT = 2.5;
-const BAR_GAP = 3;
+const BAR_WIDTH = 11;
+const BAR_HEIGHT = 2;
+const BAR_GAP = 2.5;
 const BAR_COUNT = 3;
 /** 내용보다 튀지 않도록 연하게 둔다. */
-const HANDLE_OPACITY = 0.4;
+const HANDLE_OPACITY = 0.25;
 /** 보이는 폭은 좁게, 누르는 영역은 바깥 여백으로 넓힌다. */
 const HIT_SLOP = { top: 16, bottom: 16, left: 16, right: 10 };
 
