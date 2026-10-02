@@ -15,6 +15,7 @@ const ITEM: Dday = {
   date: '2025-03-01',
   repeatYearly: true,
   showMilestones: false,
+  order: 0,
   notifyOnDay: true,
   notifyDaysBefore: 3,
   createdAt: '2026-10-01T00:00:00.000Z',
@@ -22,7 +23,7 @@ const ITEM: Dday = {
 };
 
 function current(data: { categories?: unknown[]; items?: unknown[] }) {
-  return JSON.stringify({ version: 4, categories: [CATEGORY], items: [ITEM], ...data });
+  return JSON.stringify({ version: 5, categories: [CATEGORY], items: [ITEM], ...data });
 }
 
 describe('parseStoredData', () => {
@@ -77,37 +78,64 @@ describe('parseStoredData', () => {
   });
 
   it('더 새로운 버전의 데이터는 덮어쓰지 않도록 실패한다', () => {
-    const raw = JSON.stringify({ version: 5, categories: [], items: [] });
+    const raw = JSON.stringify({ version: 6, categories: [], items: [] });
     expect(parseStoredData(raw)).toEqual({ ok: false, reason: 'unsupported-version' });
   });
 
+  it('버전 4 기록은 저장된 순서대로 직접 정렬 순서를 매긴다', () => {
+    const { order: _order, ...v4Item } = ITEM;
+    const raw = JSON.stringify({
+      version: 4,
+      categories: [CATEGORY],
+      items: [v4Item, { ...v4Item, id: 'b' }],
+    });
+    expect(parseStoredData(raw)).toEqual({
+      ok: true,
+      categories: [CATEGORY],
+      items: [
+        { ...v4Item, order: 0 },
+        { ...v4Item, id: 'b', order: 1 },
+      ],
+    });
+  });
+
   it('버전 3 기록은 100일 기념일을 켠 상태로 옮긴다', () => {
-    const { showMilestones: _showMilestones, ...v3Item } = ITEM;
+    const { showMilestones: _showMilestones, order: _order, ...v3Item } = ITEM;
     const raw = JSON.stringify({ version: 3, categories: [CATEGORY], items: [v3Item] });
     expect(parseStoredData(raw)).toEqual({
       ok: true,
       categories: [CATEGORY],
-      items: [{ ...v3Item, showMilestones: true }],
+      items: [{ ...v3Item, showMilestones: true, order: 0 }],
     });
   });
 
   it('버전 2 기록은 기본 분류를 만들고 같은 분류를 가리키게 옮긴다', () => {
-    const { categoryId: _categoryId, showMilestones: _showMilestones, ...base } = ITEM;
+    const {
+      categoryId: _categoryId,
+      showMilestones: _showMilestones,
+      order: _order,
+      ...base
+    } = ITEM;
     const raw = JSON.stringify({ version: 2, items: [{ ...base, category: 'couple' }] });
     expect(parseStoredData(raw)).toEqual({
       ok: true,
       categories: DEFAULT_CATEGORIES,
-      items: [{ ...base, categoryId: 'couple', showMilestones: true }],
+      items: [{ ...base, categoryId: 'couple', showMilestones: true, order: 0 }],
     });
   });
 
   it('버전 1 기록은 지우지 않고 개인 분류로 옮긴다', () => {
-    const { categoryId: _categoryId, showMilestones: _showMilestones, ...v1Item } = ITEM;
+    const {
+      categoryId: _categoryId,
+      showMilestones: _showMilestones,
+      order: _order,
+      ...v1Item
+    } = ITEM;
     const raw = JSON.stringify({ version: 1, items: [v1Item] });
     expect(parseStoredData(raw)).toEqual({
       ok: true,
       categories: DEFAULT_CATEGORIES,
-      items: [{ ...v1Item, categoryId: 'personal', showMilestones: true }],
+      items: [{ ...v1Item, categoryId: 'personal', showMilestones: true, order: 0 }],
     });
   });
 });

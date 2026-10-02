@@ -1,14 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import ReorderableList, {
+  type ReorderableListReorderEvent,
+  reorderItems,
+  useReorderableDrag,
+} from 'react-native-reorderable-list';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AD_BANNER_HEIGHT, AdBannerSlot } from '../../../components/AdBannerSlot';
@@ -23,12 +20,15 @@ import {
   CategoryFilterChips,
 } from '../components/CategoryChips';
 import { DdayCard } from '../components/DdayCard';
+import { SortSheet } from '../components/SortSheet';
 import { useDdayStore } from '../DdayStoreProvider';
+import { useSortMode } from '../hooks/useSortMode';
 import { useToday } from '../hooks/useToday';
 import { formatKoreanDate } from '../logic/dates';
-import { sortForDisplay } from '../logic/ddayStatus';
+import { sortDdays } from '../logic/sorting';
 import { settingsStrings } from '../../settings/strings';
 import { ddayStrings } from '../strings';
+import type { Category, Dday } from '../types';
 
 const FAB_SIZE = 60;
 const LOGO_SIZE = 40;
@@ -40,7 +40,10 @@ export function DdayListScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const today = useToday();
-  const { items, categories, loadState, notificationSync, reload } = useDdayStore();
+  const { items, categories, loadState, notificationSync, reload, reorderDdays } = useDdayStore();
+  const [sortMode, setSortMode] = useSortMode();
+  const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
+  const isManual = sortMode === 'manual';
   const [selectedFilter, setFilter] = useState<CategoryFilter>(ALL_CATEGORIES);
   // 고른 분류가 삭제되면 전체로 돌아간다.
   const filter = categories.some((category) => category.id === selectedFilter)
@@ -54,8 +57,8 @@ export function DdayListScreen() {
   const visible = useMemo(() => {
     const filtered =
       filter === ALL_CATEGORIES ? items : items.filter((item) => item.categoryId === filter);
-    return sortForDisplay(filtered, today);
-  }, [items, filter, today]);
+    return sortDdays(filtered, sortMode, today);
+  }, [items, filter, sortMode, today]);
 
   const openDetail = useCallback(
     (id: string) => router.push({ pathname: '/dday/[id]', params: { id } }),
@@ -70,6 +73,31 @@ export function DdayListScreen() {
   );
   const openCategories = useCallback(() => router.push('/categories'), [router]);
   const openSettings = useCallback(() => router.push('/settings'), [router]);
+
+  const saveOrder = useCallback(
+    (ordered: readonly Dday[]) => {
+      reorderDdays(ordered.map((item) => item.id)).catch((error: unknown) => {
+        Alert.alert(
+          ddayStrings.reorderFailed,
+          error instanceof Error ? error.message : String(error),
+        );
+      });
+    },
+    [reorderDdays],
+  );
+  const handleReorder = useCallback(
+    ({ from, to }: ReorderableListReorderEvent) => saveOrder(reorderItems(visible, from, to)),
+    [saveOrder, visible],
+  );
+  const moveByOne = useCallback(
+    (id: string, delta: -1 | 1) => {
+      const from = visible.findIndex((item) => item.id === id);
+      const to = from + delta;
+      if (from < 0 || to < 0 || to >= visible.length) return;
+      saveOrder(reorderItems(visible, from, to));
+    },
+    [saveOrder, visible],
+  );
 
   if (loadState.status === 'loading') {
     return (
@@ -117,6 +145,24 @@ export function DdayListScreen() {
         onChange={setFilter}
         onManage={openCategories}
       />
+      {items.length > 0 && (
+        <View style={styles.sortRow}>
+          <Text style={styles.count}>{ddayStrings.countSummary(visible.length)}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${ddayStrings.sortTitle}, ${ddayStrings.sortLabels[sortMode]}`}
+            onPress={() => setIsSortSheetOpen(true)}
+            style={({ pressed }) => [styles.sortButton, pressed && styles.fabPressed]}
+          >
+            <Text style={styles.sortButtonText}>
+              {ddayStrings.sortButton(ddayStrings.sortLabels[sortMode])}
+            </Text>
+          </Pressable>
+        </View>
+      )}
+      {isManual && items.length > 1 && (
+        <Text style={styles.hint}>{ddayStrings.sortManualHint}</Text>
+      )}
       {notificationSync === 'permission-denied' && (
         <Text style={styles.banner}>{ddayStrings.notificationBlocked}</Text>
       )}
@@ -139,15 +185,18 @@ export function DdayListScreen() {
 
   return (
     <View style={styles.container}>
-      <FlatList
+      <ReorderableList
         data={visible}
         keyExtractor={(item) => item.id}
+        onReorder={handleReorder}
+        dragEnabled={isManual}
         renderItem={({ item }) => (
-          <DdayCard
+          <ReorderableCard
             item={item}
             category={categoryById.get(item.categoryId)}
             today={today}
             onPress={openDetail}
+            onMove={isManual ? moveByOne : undefined}
           />
         )}
         contentContainerStyle={[
@@ -175,8 +224,28 @@ export function DdayListScreen() {
       <View style={{ paddingBottom: insets.bottom }}>
         <AdBannerSlot label={ddayStrings.adBanner} />
       </View>
+      <SortSheet
+        visible={isSortSheetOpen}
+        value={sortMode}
+        onSelect={setSortMode}
+        onClose={() => setIsSortSheetOpen(false)}
+      />
     </View>
   );
+}
+
+type ReorderableCardProps = {
+  item: Dday;
+  category: Category | undefined;
+  today: string;
+  onPress: (id: string) => void;
+  onMove?: (id: string, delta: -1 | 1) => void;
+};
+
+/** useReorderableDrag는 ReorderableList 안에서만 부를 수 있어 카드를 감싼다. */
+function ReorderableCard({ onMove, ...props }: ReorderableCardProps) {
+  const drag = useReorderableDrag();
+  return <DdayCard {...props} onMove={onMove} onLongPress={onMove ? drag : undefined} />;
 }
 
 function Separator() {
@@ -235,6 +304,31 @@ const createStyles = ({ colors, shadow }: Theme) =>
     today: {
       fontSize: fontSize.caption,
       color: colors.textMuted,
+    },
+    sortRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: -spacing.sm,
+    },
+    count: {
+      fontSize: fontSize.caption,
+      color: colors.textMuted,
+    },
+    sortButton: {
+      minHeight: MIN_TOUCH_SIZE - 8,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.sm,
+    },
+    sortButtonText: {
+      fontSize: fontSize.caption,
+      fontWeight: '700',
+      color: colors.primaryText,
+    },
+    hint: {
+      fontSize: fontSize.caption,
+      color: colors.textMuted,
+      marginTop: -spacing.sm,
     },
     separator: {
       height: spacing.md,

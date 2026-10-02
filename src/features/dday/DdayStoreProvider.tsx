@@ -15,6 +15,7 @@ import {
   addCategory as addCategoryTo,
   removeCategory as removeCategoryFrom,
 } from './logic/categories';
+import { applyManualOrder, nextOrder } from './logic/sorting';
 import {
   type NotificationSyncResult,
   syncNotifications,
@@ -33,6 +34,7 @@ type DdayStore = {
   addDday: (input: DdayInput) => Promise<Dday>;
   updateDday: (id: string, input: DdayInput) => Promise<void>;
   removeDday: (id: string) => Promise<void>;
+  reorderDdays: (orderedIds: readonly string[]) => Promise<void>;
   addCategory: (name: string, color: CategoryColorKey) => Promise<Category>;
   removeCategory: (id: string) => Promise<void>;
 };
@@ -133,7 +135,13 @@ export function DdayStoreProvider({ children }: { children: ReactNode }) {
           throw new Error('분류를 찾을 수 없어요.');
         }
         const now = new Date().toISOString();
-        const created: Dday = { ...input, id: createId(), createdAt: now, updatedAt: now };
+        const created: Dday = {
+          ...input,
+          id: createId(),
+          order: nextOrder(current.items),
+          createdAt: now,
+          updatedAt: now,
+        };
         return { next: { ...current, items: [...current.items, created] }, result: created };
       }),
     [mutate],
@@ -166,6 +174,15 @@ export function DdayStoreProvider({ children }: { children: ReactNode }) {
     (id: string) =>
       mutate((current) => ({
         next: { ...current, items: current.items.filter((item) => item.id !== id) },
+        result: undefined,
+      })),
+    [mutate],
+  );
+
+  const reorderDdays = useCallback(
+    (orderedIds: readonly string[]) =>
+      mutate((current) => ({
+        next: { ...current, items: applyManualOrder(current.items, orderedIds) },
         result: undefined,
       })),
     [mutate],
@@ -206,6 +223,7 @@ export function DdayStoreProvider({ children }: { children: ReactNode }) {
       addDday,
       updateDday,
       removeDday,
+      reorderDdays,
       addCategory,
       removeCategory,
     }),
@@ -217,6 +235,7 @@ export function DdayStoreProvider({ children }: { children: ReactNode }) {
       addDday,
       updateDday,
       removeDday,
+      reorderDdays,
       addCategory,
       removeCategory,
     ],

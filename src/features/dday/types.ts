@@ -35,6 +35,8 @@ export type Dday = {
   repeatYearly: boolean;
   /** 기준일부터 100일·200일… 기념일을 보여줄지 */
   showMilestones: boolean;
+  /** 직접 정렬 순서. 작을수록 앞이다. */
+  order: number;
   notifyOnDay: boolean;
   notifyDaysBefore: NotifyDaysBefore | null;
   createdAt: string;

@@ -36,6 +36,8 @@ npx expo prebuild --platform android
 cd android && ./gradlew assembleDebug
 ```
 
+네이티브 의존성 버전을 바꾼 뒤 C++ 빌드가 `libworklets.so ... missing` 같은 오류로 실패하면 `rm -rf node_modules/expo-modules-core/android/.cxx node_modules/expo-modules-core/android/build` 후 다시 빌드하고, 개발 서버는 `npx expo start --dev-client --clear`로 캐시를 지워 띄운다.
+
 `android/`, `ios/`는 생성물이라 커밋하지 않는다. 네이티브 설정은 `app.json`의 플러그인으로 바꾼다.
 Expo Go에서는 알림·위젯이 동작하지 않으므로 개발 빌드(`npm run android`)로 확인한다.
 

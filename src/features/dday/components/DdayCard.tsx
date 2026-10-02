@@ -14,9 +14,13 @@ type DdayCardProps = {
   category: Category | undefined;
   today: LocalDate;
   onPress: (id: string) => void;
+  /** 직접 정렬에서 길게 눌러 끌기 시작 */
+  onLongPress?: () => void;
+  /** 직접 정렬에서 화면 읽기 사용자를 위한 한 칸 이동 */
+  onMove?: (id: string, delta: -1 | 1) => void;
 };
 
-export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
+export function DdayCard({ item, category, today, onPress, onLongPress, onMove }: DdayCardProps) {
   const styles = useThemedStyles(createStyles);
   const { colors, categoryPalette } = useTheme();
   const status = getDdayStatus(item, today);
@@ -34,6 +38,20 @@ export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
       accessibilityRole="button"
       accessibilityLabel={`${category?.name ?? ''}, ${item.title}, ${status.label}, ${formatKoreanDate(status.targetDate)}`}
       onPress={() => onPress(item.id)}
+      onLongPress={onLongPress}
+      delayLongPress={250}
+      accessibilityActions={
+        onMove
+          ? [
+              { name: 'moveUp', label: ddayStrings.moveUp },
+              { name: 'moveDown', label: ddayStrings.moveDown },
+            ]
+          : undefined
+      }
+      onAccessibilityAction={(event) => {
+        if (event.nativeEvent.actionName === 'moveUp') onMove?.(item.id, -1);
+        if (event.nativeEvent.actionName === 'moveDown') onMove?.(item.id, 1);
+      }}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={styles.info}>

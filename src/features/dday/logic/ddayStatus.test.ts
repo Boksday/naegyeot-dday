@@ -17,6 +17,7 @@ function makeDday(overrides: Partial<Dday>): Dday {
     categoryId: 'personal',
     repeatYearly: false,
     showMilestones: false,
+    order: 0,
     notifyOnDay: false,
     notifyDaysBefore: null,
     createdAt: '2026-10-01T00:00:00.000Z',

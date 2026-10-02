@@ -1,5 +1,7 @@
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 
 import { DdayStoreProvider } from '../features/dday/DdayStoreProvider';
@@ -20,22 +22,33 @@ export default function RootLayout() {
       });
   }, []);
   return (
-    <DdayStoreProvider>
-      <StatusBar style="auto" />
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
-          headerShadowVisible: false,
-          contentStyle: { backgroundColor: colors.background },
-        }}
-      >
-        <Stack.Screen name="index" options={{ title: ddayStrings.appTitle, headerShown: false }} />
-        <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="dday/[id]" options={{ title: '' }} />
-        <Stack.Screen name="categories" options={{ title: ddayStrings.categoriesTitle }} />
-        <Stack.Screen name="settings" options={{ title: settingsStrings.title }} />
-      </Stack>
-    </DdayStoreProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <DdayStoreProvider>
+        <StatusBar style="auto" />
+        <Stack
+          screenOptions={{
+            headerStyle: { backgroundColor: colors.background },
+            headerTintColor: colors.text,
+            headerShadowVisible: false,
+            contentStyle: { backgroundColor: colors.background },
+          }}
+        >
+          <Stack.Screen
+            name="index"
+            options={{ title: ddayStrings.appTitle, headerShown: false }}
+          />
+          <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="dday/[id]" options={{ title: '' }} />
+          <Stack.Screen name="categories" options={{ title: ddayStrings.categoriesTitle }} />
+          <Stack.Screen name="settings" options={{ title: settingsStrings.title }} />
+        </Stack>
+      </DdayStoreProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});

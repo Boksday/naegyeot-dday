@@ -1,4 +1,5 @@
 import type { CategoryColorKey } from '../../theme/tokens';
+import type { SortMode } from './logic/sorting';
 
 export const colorNames: Record<CategoryColorKey, string> = {
   rose: '분홍',
@@ -40,6 +41,18 @@ export const ddayStrings = {
   categoryDeleteLast: '분류는 하나 이상 있어야 해요.',
   categoryListTitle: '내 분류',
   adBanner: '광고 배너 영역',
+  sortTitle: '정렬',
+  sortLabels: {
+    upcoming: '가까운 순',
+    manual: '직접 정렬',
+    recent: '최근 추가 순',
+    title: '이름순',
+  } satisfies Record<SortMode, string>,
+  sortButton: (label: string) => `${label} ▾`,
+  sortManualHint: '카드를 길게 눌러 끌면 순서를 바꿀 수 있어요.',
+  moveUp: '위로 옮기기',
+  moveDown: '아래로 옮기기',
+  reorderFailed: '순서를 저장하지 못했어요',
   sectionBasic: '기본 정보',
   sectionRepeat: '기념일',
   sectionNotification: '알림',
