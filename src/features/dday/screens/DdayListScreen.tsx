@@ -14,7 +14,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AD_BANNER_HEIGHT, AdBannerSlot } from '../../../components/AdBannerSlot';
 import { AssetPlaceholder } from '../../../components/AssetPlaceholder';
 import { PrimaryButton } from '../../../components/PrimaryButton';
-import { colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
+import { fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
+import { type Theme, useTheme, useThemedStyles } from '../../../theme/useTheme';
 import {
   ALL_CATEGORIES,
   type CategoryFilter,
@@ -25,6 +26,7 @@ import { useDdayStore } from '../DdayStoreProvider';
 import { useToday } from '../hooks/useToday';
 import { formatKoreanDate } from '../logic/dates';
 import { sortForDisplay } from '../logic/ddayStatus';
+import { settingsStrings } from '../../settings/strings';
 import { ddayStrings } from '../strings';
 
 const FAB_SIZE = 60;
@@ -32,6 +34,8 @@ const LOGO_SIZE = 40;
 const APP_LOGO = require('../../../../assets/logo.png');
 
 export function DdayListScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const today = useToday();
@@ -64,6 +68,7 @@ export function DdayListScreen() {
     [router, filter],
   );
   const openCategories = useCallback(() => router.push('/categories'), [router]);
+  const openSettings = useCallback(() => router.push('/settings'), [router]);
 
   if (loadState.status === 'loading') {
     return (
@@ -92,10 +97,18 @@ export function DdayListScreen() {
           accessibilityIgnoresInvertColors
           accessible={false}
         />
-        <View>
+        <View style={styles.brandText}>
           <Text style={styles.appTitle}>{ddayStrings.appTitle}</Text>
           <Text style={styles.today}>{ddayStrings.today(formatKoreanDate(today))}</Text>
         </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={settingsStrings.openSettings}
+          onPress={openSettings}
+          style={({ pressed }) => [styles.headerButton, pressed && styles.fabPressed]}
+        >
+          <AssetPlaceholder name={settingsStrings.settingsIconName} size={24} />
+        </Pressable>
       </View>
       <CategoryFilterChips
         categories={categories}
@@ -166,99 +179,110 @@ export function DdayListScreen() {
 }
 
 function Separator() {
+  const styles = useThemedStyles(createStyles);
   return <View style={styles.separator} />;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background,
-    gap: spacing.md,
-  },
-  padded: {
-    padding: spacing.xl,
-  },
-  list: {
-    paddingHorizontal: spacing.lg,
-    flexGrow: 1,
-  },
-  header: {
-    gap: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  logo: {
-    width: LOGO_SIZE,
-    height: LOGO_SIZE,
-    borderRadius: LOGO_SIZE * 0.28,
-  },
-  appTitle: {
-    fontSize: fontSize.headline,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  today: {
-    fontSize: fontSize.caption,
-    color: colors.textMuted,
-  },
-  separator: {
-    height: spacing.md,
-  },
-  banner: {
-    backgroundColor: colors.primarySoft,
-    color: colors.text,
-    fontSize: fontSize.caption,
-    borderRadius: radius.sm,
-    padding: spacing.md,
-    overflow: 'hidden',
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.xxl,
-  },
-  emptyTitle: {
-    fontSize: fontSize.title,
-    fontWeight: '700',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  emptyBody: {
-    fontSize: fontSize.body,
-    color: colors.textMuted,
-    textAlign: 'center',
-  },
-  fab: {
-    position: 'absolute',
-    right: spacing.xl,
-    width: FAB_SIZE,
-    height: FAB_SIZE,
-    borderRadius: FAB_SIZE / 2,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadow,
-    elevation: 6,
-  },
-  fabPressed: {
-    opacity: 0.85,
-  },
-  fabText: {
-    fontSize: 32,
-    lineHeight: 36,
-    color: colors.onPrimary,
-    fontWeight: '400',
-  },
-});
+const createStyles = ({ colors, shadow }: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+      gap: spacing.md,
+    },
+    padded: {
+      padding: spacing.xl,
+    },
+    list: {
+      paddingHorizontal: spacing.lg,
+      flexGrow: 1,
+    },
+    header: {
+      gap: spacing.lg,
+      marginBottom: spacing.lg,
+    },
+    brandText: {
+      flex: 1,
+    },
+    headerButton: {
+      width: MIN_TOUCH_SIZE,
+      height: MIN_TOUCH_SIZE,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    brandRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    logo: {
+      width: LOGO_SIZE,
+      height: LOGO_SIZE,
+      borderRadius: LOGO_SIZE * 0.28,
+    },
+    appTitle: {
+      fontSize: fontSize.headline,
+      fontWeight: '800',
+      color: colors.text,
+    },
+    today: {
+      fontSize: fontSize.caption,
+      color: colors.textMuted,
+    },
+    separator: {
+      height: spacing.md,
+    },
+    banner: {
+      backgroundColor: colors.primarySoft,
+      color: colors.text,
+      fontSize: fontSize.caption,
+      borderRadius: radius.sm,
+      padding: spacing.md,
+      overflow: 'hidden',
+    },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.md,
+      paddingVertical: spacing.xxl,
+    },
+    emptyTitle: {
+      fontSize: fontSize.title,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    emptyBody: {
+      fontSize: fontSize.body,
+      color: colors.textMuted,
+      textAlign: 'center',
+    },
+    fab: {
+      position: 'absolute',
+      right: spacing.xl,
+      width: FAB_SIZE,
+      height: FAB_SIZE,
+      borderRadius: FAB_SIZE / 2,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...shadow,
+      elevation: 6,
+    },
+    fabPressed: {
+      opacity: 0.85,
+    },
+    fabText: {
+      fontSize: 32,
+      lineHeight: 36,
+      color: colors.onPrimary,
+      fontWeight: '400',
+    },
+  });

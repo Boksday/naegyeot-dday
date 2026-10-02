@@ -16,7 +16,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Card } from '../../../components/Card';
 import { PrimaryButton } from '../../../components/PrimaryButton';
-import { colors, fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
+import { fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
+import { type Theme, useTheme, useThemedStyles } from '../../../theme/useTheme';
 import { CategoryPicker } from '../components/CategoryChips';
 import { DateField } from '../components/DateField';
 import { useDdayStore } from '../DdayStoreProvider';
@@ -63,6 +64,8 @@ function validateTitle(title: string): string | null {
 }
 
 export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { items, categories, addDday, updateDday } = useDdayStore();
@@ -221,6 +224,7 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -230,6 +234,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
@@ -246,6 +251,8 @@ type ToggleRowProps = {
 };
 
 function ToggleRow({ label, hint, value, onChange }: ToggleRowProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors, isDark } = useTheme();
   return (
     <View style={styles.toggleRow}>
       <View style={styles.toggleText}>
@@ -257,7 +264,8 @@ function ToggleRow({ label, hint, value, onChange }: ToggleRowProps) {
         onValueChange={onChange}
         accessibilityLabel={label}
         trackColor={{ true: colors.primary, false: colors.border }}
-        thumbColor={colors.surface}
+        // 다크에서는 어두운 면 색이 트랙에 묻히므로 밝은 손잡이를 쓴다.
+        thumbColor={isDark ? colors.text : colors.surface}
       />
     </View>
   );
@@ -270,6 +278,7 @@ type OptionChipProps = {
 };
 
 function OptionChip({ label, selected, onPress }: OptionChipProps) {
+  const styles = useThemedStyles(createStyles);
   return (
     <Pressable
       accessibilityRole="radio"
@@ -282,101 +291,102 @@ function OptionChip({ label, selected, onPress }: OptionChipProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: spacing.lg,
-    gap: spacing.xl,
-  },
-  section: {
-    gap: spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: fontSize.caption,
-    fontWeight: '700',
-    color: colors.textMuted,
-    marginLeft: spacing.xs,
-  },
-  sectionCard: {
-    gap: spacing.lg,
-  },
-  field: {
-    gap: spacing.sm,
-  },
-  label: {
-    fontSize: fontSize.body,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  input: {
-    minHeight: MIN_TOUCH_SIZE,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.md,
-    fontSize: fontSize.body,
-    color: colors.text,
-    backgroundColor: colors.surfaceMuted,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  inputError: {
-    borderColor: colors.danger,
-  },
-  error: {
-    fontSize: fontSize.caption,
-    color: colors.danger,
-  },
-  hint: {
-    fontSize: fontSize.caption,
-    color: colors.textMuted,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    minHeight: MIN_TOUCH_SIZE,
-  },
-  toggleText: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  chip: {
-    minHeight: MIN_TOUCH_SIZE - 4,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surfaceMuted,
-  },
-  chipSelected: {
-    backgroundColor: colors.primary,
-  },
-  chipLabel: {
-    fontSize: fontSize.body,
-    color: colors.text,
-  },
-  chipLabelSelected: {
-    color: colors.onPrimary,
-    fontWeight: '600',
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    backgroundColor: colors.background,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-});
+const createStyles = ({ colors }: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: spacing.lg,
+      gap: spacing.xl,
+    },
+    section: {
+      gap: spacing.sm,
+    },
+    sectionTitle: {
+      fontSize: fontSize.caption,
+      fontWeight: '700',
+      color: colors.textMuted,
+      marginLeft: spacing.xs,
+    },
+    sectionCard: {
+      gap: spacing.lg,
+    },
+    field: {
+      gap: spacing.sm,
+    },
+    label: {
+      fontSize: fontSize.body,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    input: {
+      minHeight: MIN_TOUCH_SIZE,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.md,
+      fontSize: fontSize.body,
+      color: colors.text,
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: 'transparent',
+    },
+    inputError: {
+      borderColor: colors.danger,
+    },
+    error: {
+      fontSize: fontSize.caption,
+      color: colors.danger,
+    },
+    hint: {
+      fontSize: fontSize.caption,
+      color: colors.textMuted,
+    },
+    toggleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.md,
+      minHeight: MIN_TOUCH_SIZE,
+    },
+    toggleText: {
+      flex: 1,
+      gap: spacing.xs,
+    },
+    chips: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    chip: {
+      minHeight: MIN_TOUCH_SIZE - 4,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surfaceMuted,
+    },
+    chipSelected: {
+      backgroundColor: colors.primary,
+    },
+    chipLabel: {
+      fontSize: fontSize.body,
+      color: colors.text,
+    },
+    chipLabelSelected: {
+      color: colors.onPrimary,
+      fontWeight: '600',
+    },
+    footer: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.md,
+      backgroundColor: colors.background,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+  });

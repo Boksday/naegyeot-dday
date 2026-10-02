@@ -9,7 +9,8 @@ import {
   View,
 } from 'react-native';
 
-import { colors, fontSize } from '../../../theme/tokens';
+import { fontSize } from '../../../theme/tokens';
+import { type Theme, useThemedStyles } from '../../../theme/useTheme';
 
 export const WHEEL_ITEM_HEIGHT = 44;
 const VISIBLE_ITEM_COUNT = 5;
@@ -31,6 +32,7 @@ export function WheelColumn({
   onChange,
   accessibilityLabel,
 }: WheelColumnProps) {
+  const styles = useThemedStyles(createStyles);
   const listRef = useRef<FlatList<number>>(null);
   const selectedIndex = Math.max(0, values.indexOf(selected));
 
@@ -100,35 +102,36 @@ export function WheelColumn({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    height: WHEEL_ITEM_HEIGHT * VISIBLE_ITEM_COUNT,
-  },
-  highlight: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: EDGE_PADDING,
-    height: WHEEL_ITEM_HEIGHT,
-    borderRadius: 12,
-    backgroundColor: colors.primarySoft,
-  },
-  content: {
-    paddingVertical: EDGE_PADDING,
-  },
-  item: {
-    height: WHEEL_ITEM_HEIGHT,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text: {
-    fontSize: fontSize.body,
-    color: colors.textMuted,
-  },
-  selectedText: {
-    fontSize: fontSize.title,
-    fontWeight: '700',
-    color: colors.primaryText,
-  },
-});
+const createStyles = ({ colors }: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      height: WHEEL_ITEM_HEIGHT * VISIBLE_ITEM_COUNT,
+    },
+    highlight: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: EDGE_PADDING,
+      height: WHEEL_ITEM_HEIGHT,
+      borderRadius: 12,
+      backgroundColor: colors.primarySoft,
+    },
+    content: {
+      paddingVertical: EDGE_PADDING,
+    },
+    item: {
+      height: WHEEL_ITEM_HEIGHT,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    text: {
+      fontSize: fontSize.body,
+      color: colors.textMuted,
+    },
+    selectedText: {
+      fontSize: fontSize.title,
+      fontWeight: '700',
+      color: colors.primaryText,
+    },
+  });

@@ -1,29 +1,68 @@
 import type { ViewStyle } from 'react-native';
 
-export const colors = {
+/** 위젯 등 일부 API가 '#'으로 시작하는 색 문자열만 받는다. */
+export type HexColor = `#${string}`;
+
+export type ThemeColors = {
+  background: HexColor;
+  surface: HexColor;
+  surfaceMuted: HexColor;
+  text: HexColor;
+  textMuted: HexColor;
+  /** 버튼·강조 배경용 파스텔 코랄. 위에는 onPrimary(진한 글자)를 올린다. */
+  primary: HexColor;
+  onPrimary: HexColor;
+  primarySoft: HexColor;
+  /** 파스텔 배경(분류 점 색) 위 글자. 다크에서도 진한 색이어야 읽힌다. */
+  onPastel: HexColor;
+  /** 바탕 위 강조 글자용. 라이트에서 파스텔은 글자로 쓰면 대비가 부족하다. */
+  primaryText: HexColor;
+  border: HexColor;
+  danger: HexColor;
+  overlay: string;
+};
+
+export const lightColors: ThemeColors = {
   background: '#FFF8F5',
   surface: '#FFFFFF',
   surfaceMuted: '#FBF1EE',
   text: '#3D2B28',
   textMuted: '#7A6661',
-  /** 버튼·강조 배경용 파스텔 코랄. 위에는 onPrimary(진한 글자)를 올린다. */
   primary: '#FFB5A7',
   onPrimary: '#3D2B28',
   primarySoft: '#FFE5DE',
-  /** 흰 배경 위 강조 글자용. 파스텔은 글자로 쓰면 대비가 부족하다. */
+  onPastel: '#3D2B28',
   primaryText: '#A8432F',
   border: '#F0E2DD',
   danger: '#B83227',
   overlay: 'rgba(61, 43, 40, 0.4)',
-} as const;
+};
+
+export const darkColors: ThemeColors = {
+  background: '#1B1615',
+  surface: '#28211F',
+  surfaceMuted: '#352C29',
+  text: '#F6ECE8',
+  textMuted: '#BDAEA8',
+  primary: '#FFB5A7',
+  onPrimary: '#3D2B28',
+  primarySoft: '#4A302A',
+  onPastel: '#3D2B28',
+  primaryText: '#FFB5A7',
+  border: '#3E3431',
+  danger: '#FF8F85',
+  overlay: 'rgba(0, 0, 0, 0.6)',
+};
+
+type CategoryColors = { dot: HexColor; soft: HexColor; text: HexColor };
 
 /**
  * 분류 색. 키는 저장 데이터에 들어가므로 이름을 바꾸지 않는다.
  * - dot: 파스텔 점·강조 배경
- * - soft: 더 연한 배경
- * - text: soft·흰 배경 위에서 대비 4.5 이상인 글자색
+ * - soft: 연한(다크에서는 어두운) 배경
+ * - text: soft·바탕 위에서 대비 4.5 이상인 글자색
  */
-export const categoryPalette = {
+export const lightCategoryPalette = {
   rose: { dot: '#FFB3C7', soft: '#FFE6EE', text: '#A3365A' },
   terracotta: { dot: '#FFC4A8', soft: '#FFEDE3', text: '#9C4521' },
   blue: { dot: '#A8D0FF', soft: '#E5F1FF', text: '#2D5C96' },
@@ -32,10 +71,22 @@ export const categoryPalette = {
   amber: { dot: '#FFE08A', soft: '#FFF6D9', text: '#7A5700' },
   teal: { dot: '#A6E3DA', soft: '#E4F7F4', text: '#1E6961' },
   gray: { dot: '#D9D2CF', soft: '#F3EFED', text: '#5B5552' },
-} as const;
+} as const satisfies Record<string, CategoryColors>;
 
-export type CategoryColorKey = keyof typeof categoryPalette;
-export const CATEGORY_COLOR_KEYS = Object.keys(categoryPalette) as CategoryColorKey[];
+export type CategoryColorKey = keyof typeof lightCategoryPalette;
+export type CategoryPalette = Record<CategoryColorKey, CategoryColors>;
+export const CATEGORY_COLOR_KEYS = Object.keys(lightCategoryPalette) as CategoryColorKey[];
+
+export const darkCategoryPalette: CategoryPalette = {
+  rose: { dot: '#FFB3C7', soft: '#45252F', text: '#FFC2D2' },
+  terracotta: { dot: '#FFC4A8', soft: '#47291E', text: '#FFCDB6' },
+  blue: { dot: '#A8D0FF', soft: '#1F3047', text: '#B8D8FF' },
+  green: { dot: '#B5E5B9', soft: '#213826', text: '#C1EAC4' },
+  purple: { dot: '#CDB8F5', soft: '#33294A', text: '#D8C7F7' },
+  amber: { dot: '#FFE08A', soft: '#41361A', text: '#FFE49B' },
+  teal: { dot: '#A6E3DA', soft: '#1D3A36', text: '#B4E8E0' },
+  gray: { dot: '#D9D2CF', soft: '#3A3331', text: '#DED8D5' },
+};
 
 export const spacing = {
   xs: 4,
@@ -65,10 +116,16 @@ export const fontSize = {
 /** 접근성 권장 최소 터치 영역 */
 export const MIN_TOUCH_SIZE = 48;
 
-export const shadow: ViewStyle = {
+export const lightShadow: ViewStyle = {
   shadowColor: '#5A2E22',
   shadowOpacity: 0.08,
   shadowRadius: 12,
   shadowOffset: { width: 0, height: 4 },
   elevation: 2,
+};
+
+/** 어두운 바탕에서는 그림자가 보이지 않으므로 테두리로 면을 구분한다. */
+export const darkShadow: ViewStyle = {
+  borderWidth: 1,
+  borderColor: darkColors.border,
 };

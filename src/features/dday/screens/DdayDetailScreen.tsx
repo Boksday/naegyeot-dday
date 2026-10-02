@@ -6,7 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AdBannerSlot } from '../../../components/AdBannerSlot';
 import { Card } from '../../../components/Card';
 import { PrimaryButton } from '../../../components/PrimaryButton';
-import { categoryPalette, colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
+import { fontSize, radius, spacing } from '../../../theme/tokens';
+import { type Theme, useTheme, useThemedStyles } from '../../../theme/useTheme';
 import { CategoryDot } from '../components/CategoryDot';
 import { useDdayStore } from '../DdayStoreProvider';
 import { useToday } from '../hooks/useToday';
@@ -27,6 +28,8 @@ function describeNotifications(item: Dday): string {
 }
 
 export function DdayDetailScreen({ id }: { id: string }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors, categoryPalette } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const today = useToday();
@@ -152,6 +155,7 @@ export function DdayDetailScreen({ id }: { id: string }) {
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <View style={styles.row}>
       <Text style={styles.muted}>{label}</Text>
@@ -163,6 +167,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 type MilestoneRowProps = { milestone: Milestone; prefix?: string; accent: string };
 
 function MilestoneRow({ milestone, prefix, accent }: MilestoneRowProps) {
+  const styles = useThemedStyles(createStyles);
   const name = ddayStrings.milestoneLabel(milestone.dayCount);
   return (
     <View style={styles.row}>
@@ -177,114 +182,115 @@ function MilestoneRow({ milestone, prefix, accent }: MilestoneRowProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: spacing.lg,
-    // 맨 아래 수정·삭제 버튼과 하단 광고를 떨어뜨려 오클릭을 막는다.
-    paddingBottom: spacing.xxl + spacing.lg,
-    gap: spacing.lg,
-  },
-  hero: {
-    borderRadius: radius.lg,
-    padding: spacing.xl,
-    gap: spacing.sm,
-    ...shadow,
-  },
-  heroTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  heroBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.pill,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  },
-  heroBadgeText: {
-    fontSize: fontSize.caption,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  heroTitle: {
-    marginTop: spacing.md,
-    fontSize: fontSize.title,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  heroLabel: {
-    fontSize: fontSize.display,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  heroMeta: {
-    fontSize: fontSize.caption,
-    color: colors.text,
-    opacity: 0.75,
-  },
-  section: {
-    gap: spacing.md,
-  },
-  sectionTitle: {
-    fontSize: fontSize.body,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: spacing.md,
-    minHeight: 32,
-  },
-  nudge: {
-    fontSize: fontSize.caption,
-    color: colors.primaryText,
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.sm,
-    padding: spacing.md,
-    overflow: 'hidden',
-  },
-  muted: {
-    fontSize: fontSize.caption,
-    color: colors.textMuted,
-  },
-  value: {
-    fontSize: fontSize.body,
-    color: colors.text,
-    flexShrink: 1,
-    textAlign: 'right',
-  },
-  milestoneInfo: {
-    gap: 2,
-  },
-  milestoneName: {
-    fontSize: fontSize.body,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  milestoneLabel: {
-    fontSize: fontSize.body,
-    fontWeight: '700',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  actionItem: {
-    flex: 1,
-  },
-});
+const createStyles = ({ colors, shadow }: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: spacing.lg,
+      // 맨 아래 수정·삭제 버튼과 하단 광고를 떨어뜨려 오클릭을 막는다.
+      paddingBottom: spacing.xxl + spacing.lg,
+      gap: spacing.lg,
+    },
+    hero: {
+      borderRadius: radius.lg,
+      padding: spacing.xl,
+      gap: spacing.sm,
+      ...shadow,
+    },
+    heroTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    heroBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.pill,
+      backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    },
+    heroBadgeText: {
+      fontSize: fontSize.caption,
+      fontWeight: '600',
+      color: colors.onPastel,
+    },
+    heroTitle: {
+      marginTop: spacing.md,
+      fontSize: fontSize.title,
+      fontWeight: '600',
+      color: colors.onPastel,
+    },
+    heroLabel: {
+      fontSize: fontSize.display,
+      fontWeight: '800',
+      color: colors.onPastel,
+    },
+    heroMeta: {
+      fontSize: fontSize.caption,
+      color: colors.onPastel,
+      opacity: 0.75,
+    },
+    section: {
+      gap: spacing.md,
+    },
+    sectionTitle: {
+      fontSize: fontSize.body,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: spacing.md,
+      minHeight: 32,
+    },
+    nudge: {
+      fontSize: fontSize.caption,
+      color: colors.primaryText,
+      backgroundColor: colors.primarySoft,
+      borderRadius: radius.sm,
+      padding: spacing.md,
+      overflow: 'hidden',
+    },
+    muted: {
+      fontSize: fontSize.caption,
+      color: colors.textMuted,
+    },
+    value: {
+      fontSize: fontSize.body,
+      color: colors.text,
+      flexShrink: 1,
+      textAlign: 'right',
+    },
+    milestoneInfo: {
+      gap: 2,
+    },
+    milestoneName: {
+      fontSize: fontSize.body,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    milestoneLabel: {
+      fontSize: fontSize.body,
+      fontWeight: '700',
+    },
+    actions: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    actionItem: {
+      flex: 1,
+    },
+  });

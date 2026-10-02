@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '../theme/tokens';
+import { type Theme, useTheme, useThemedStyles } from '../theme/useTheme';
 
 type AssetPlaceholderProps = {
   /** 어떤 아이콘·이미지가 들어갈 자리인지. docs/assets.md의 이름과 맞춘다. */
@@ -18,8 +18,11 @@ export function AssetPlaceholder({
   name,
   size,
   showLabel = false,
-  tint = colors.textMuted,
+  tint: tintProp,
 }: AssetPlaceholderProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  const tint = tintProp ?? colors.textMuted;
   const diagonal = size * Math.SQRT2;
   const lineStyle = {
     width: diagonal,
@@ -41,22 +44,23 @@ export function AssetPlaceholder({
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  box: {
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
-  line: {
-    position: 'absolute',
-    height: 1,
-    opacity: 0.6,
-  },
-  label: {
-    fontSize: 11,
-    textAlign: 'center',
-  },
-});
+const createStyles = (_theme: Theme) =>
+  StyleSheet.create({
+    wrapper: {
+      alignItems: 'center',
+      gap: 4,
+    },
+    box: {
+      borderWidth: 1,
+      overflow: 'hidden',
+    },
+    line: {
+      position: 'absolute',
+      height: 1,
+      opacity: 0.6,
+    },
+    label: {
+      fontSize: 11,
+      textAlign: 'center',
+    },
+  });

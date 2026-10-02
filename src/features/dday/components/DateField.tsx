@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { AssetPlaceholder } from '../../../components/AssetPlaceholder';
-import { colors, fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
+import { fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
+import { type Theme, useThemedStyles } from '../../../theme/useTheme';
 import { formatKoreanDate, type LocalDate, toLocalDate } from '../logic/dates';
 import { DatePickerSheet } from './DatePickerSheet';
 
@@ -13,6 +14,7 @@ type DateFieldProps = {
 };
 
 export function DateField({ value, onChange, accessibilityLabel }: DateFieldProps) {
+  const styles = useThemedStyles(createStyles);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   return (
@@ -43,21 +45,22 @@ export function DateField({ value, onChange, accessibilityLabel }: DateFieldProp
   );
 }
 
-const styles = StyleSheet.create({
-  field: {
-    minHeight: MIN_TOUCH_SIZE,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surfaceMuted,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  text: {
-    fontSize: fontSize.body,
-    color: colors.text,
-  },
-});
+const createStyles = ({ colors }: Theme) =>
+  StyleSheet.create({
+    field: {
+      minHeight: MIN_TOUCH_SIZE,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.md,
+      backgroundColor: colors.surfaceMuted,
+    },
+    pressed: {
+      opacity: 0.7,
+    },
+    text: {
+      fontSize: fontSize.body,
+      color: colors.text,
+    },
+  });

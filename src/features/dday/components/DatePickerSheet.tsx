@@ -3,7 +3,8 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '../../../components/PrimaryButton';
-import { colors, fontSize, radius, spacing } from '../../../theme/tokens';
+import { fontSize, radius, spacing } from '../../../theme/tokens';
+import { type Theme, useThemedStyles } from '../../../theme/useTheme';
 import { daysInMonth, formatLocalDate, type LocalDate, parseLocalDate } from '../logic/dates';
 import { ddayStrings } from '../strings';
 import { WheelColumn } from './WheelColumn';
@@ -43,6 +44,7 @@ export function DatePickerSheet({
   onConfirm,
   onClose,
 }: DatePickerSheetProps) {
+  const styles = useThemedStyles(createStyles);
   const insets = useSafeAreaInsets();
   const [draft, setDraft] = useState<DateParts>(() => toParts(value));
   const days = useMemo(
@@ -109,51 +111,52 @@ export function DatePickerSheet({
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: colors.overlay,
-  },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    gap: spacing.lg,
-  },
-  handle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.border,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
-    fontSize: fontSize.title,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  todayButton: {
-    minHeight: 40,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surfaceMuted,
-  },
-  todayText: {
-    fontSize: fontSize.caption,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  wheels: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-});
+const createStyles = ({ colors }: Theme) =>
+  StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      backgroundColor: colors.overlay,
+    },
+    sheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.lg,
+      borderTopRightRadius: radius.lg,
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      gap: spacing.lg,
+    },
+    handle: {
+      alignSelf: 'center',
+      width: 40,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: colors.border,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    title: {
+      fontSize: fontSize.title,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    todayButton: {
+      minHeight: 40,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surfaceMuted,
+    },
+    todayText: {
+      fontSize: fontSize.caption,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    wheels: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+  });

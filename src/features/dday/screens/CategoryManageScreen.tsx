@@ -16,13 +16,12 @@ import { PrimaryButton } from '../../../components/PrimaryButton';
 import {
   CATEGORY_COLOR_KEYS,
   type CategoryColorKey,
-  categoryPalette,
-  colors,
   fontSize,
   MIN_TOUCH_SIZE,
   radius,
   spacing,
 } from '../../../theme/tokens';
+import { type Theme, useTheme, useThemedStyles } from '../../../theme/useTheme';
 import { useDdayStore } from '../DdayStoreProvider';
 import {
   canAddCategory,
@@ -41,6 +40,8 @@ function describeNameError(error: CategoryNameError): string {
 }
 
 export function CategoryManageScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors, categoryPalette } = useTheme();
   const { items, categories, addCategory, removeCategory } = useDdayStore();
   const [name, setName] = useState('');
   const [color, setColor] = useState<CategoryColorKey>('green');
@@ -190,113 +191,114 @@ export function CategoryManageScreen() {
 
 const SWATCH_SIZE = 32;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: spacing.lg,
-    gap: spacing.xl,
-  },
-  section: {
-    gap: spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: fontSize.caption,
-    fontWeight: '700',
-    color: colors.textMuted,
-    marginLeft: spacing.xs,
-  },
-  sectionCard: {
-    gap: spacing.md,
-  },
-  label: {
-    fontSize: fontSize.body,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  input: {
-    minHeight: MIN_TOUCH_SIZE,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.md,
-    fontSize: fontSize.body,
-    color: colors.text,
-    backgroundColor: colors.surfaceMuted,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  inputError: {
-    borderColor: colors.danger,
-  },
-  error: {
-    fontSize: fontSize.caption,
-    color: colors.danger,
-  },
-  swatches: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  swatchRing: {
-    width: MIN_TOUCH_SIZE,
-    height: MIN_TOUCH_SIZE,
-    borderRadius: MIN_TOUCH_SIZE / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  swatchRingSelected: {
-    borderColor: colors.text,
-  },
-  swatch: {
-    width: SWATCH_SIZE,
-    height: SWATCH_SIZE,
-    borderRadius: SWATCH_SIZE / 2,
-  },
-  list: {
-    paddingVertical: spacing.xs,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  rowDivider: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  dot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-  },
-  rowText: {
-    flex: 1,
-    gap: 2,
-  },
-  rowName: {
-    fontSize: fontSize.body,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  muted: {
-    fontSize: fontSize.caption,
-    color: colors.textMuted,
-  },
-  deleteButton: {
-    minHeight: MIN_TOUCH_SIZE,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-  },
-  pressed: {
-    opacity: 0.6,
-  },
-  deleteText: {
-    fontSize: fontSize.body,
-    color: colors.danger,
-    fontWeight: '600',
-  },
-});
+const createStyles = ({ colors }: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: spacing.lg,
+      gap: spacing.xl,
+    },
+    section: {
+      gap: spacing.sm,
+    },
+    sectionTitle: {
+      fontSize: fontSize.caption,
+      fontWeight: '700',
+      color: colors.textMuted,
+      marginLeft: spacing.xs,
+    },
+    sectionCard: {
+      gap: spacing.md,
+    },
+    label: {
+      fontSize: fontSize.body,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    input: {
+      minHeight: MIN_TOUCH_SIZE,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.md,
+      fontSize: fontSize.body,
+      color: colors.text,
+      backgroundColor: colors.surfaceMuted,
+      borderWidth: 1,
+      borderColor: 'transparent',
+    },
+    inputError: {
+      borderColor: colors.danger,
+    },
+    error: {
+      fontSize: fontSize.caption,
+      color: colors.danger,
+    },
+    swatches: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    swatchRing: {
+      width: MIN_TOUCH_SIZE,
+      height: MIN_TOUCH_SIZE,
+      borderRadius: MIN_TOUCH_SIZE / 2,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    swatchRingSelected: {
+      borderColor: colors.text,
+    },
+    swatch: {
+      width: SWATCH_SIZE,
+      height: SWATCH_SIZE,
+      borderRadius: SWATCH_SIZE / 2,
+    },
+    list: {
+      paddingVertical: spacing.xs,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingVertical: spacing.md,
+    },
+    rowDivider: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    dot: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+    },
+    rowText: {
+      flex: 1,
+      gap: 2,
+    },
+    rowName: {
+      fontSize: fontSize.body,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    muted: {
+      fontSize: fontSize.caption,
+      color: colors.textMuted,
+    },
+    deleteButton: {
+      minHeight: MIN_TOUCH_SIZE,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.md,
+    },
+    pressed: {
+      opacity: 0.6,
+    },
+    deleteText: {
+      fontSize: fontSize.body,
+      color: colors.danger,
+      fontWeight: '600',
+    },
+  });

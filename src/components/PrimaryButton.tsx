@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { colors, fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../theme/tokens';
+import { fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../theme/tokens';
+import { type Theme, useThemedStyles } from '../theme/useTheme';
 
 type PrimaryButtonProps = {
   label: string;
@@ -15,6 +16,7 @@ export function PrimaryButton({
   disabled = false,
   variant = 'filled',
 }: PrimaryButtonProps) {
+  const styles = useThemedStyles(createStyles);
   return (
     <Pressable
       accessibilityRole="button"
@@ -43,41 +45,42 @@ export function PrimaryButton({
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    minHeight: MIN_TOUCH_SIZE,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filled: {
-    backgroundColor: colors.primary,
-  },
-  outline: {
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: colors.surface,
-  },
-  danger: {
-    borderWidth: 1,
-    borderColor: colors.danger,
-    backgroundColor: colors.surface,
-  },
-  dimmed: {
-    opacity: 0.6,
-  },
-  label: {
-    fontSize: fontSize.body,
-    fontWeight: '600',
-  },
-  filledLabel: {
-    color: colors.onPrimary,
-  },
-  outlineLabel: {
-    color: colors.primaryText,
-  },
-  dangerLabel: {
-    color: colors.danger,
-  },
-});
+const createStyles = ({ colors }: Theme) =>
+  StyleSheet.create({
+    base: {
+      minHeight: MIN_TOUCH_SIZE,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.xl,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    filled: {
+      backgroundColor: colors.primary,
+    },
+    outline: {
+      borderWidth: 1,
+      borderColor: colors.primary,
+      backgroundColor: colors.surface,
+    },
+    danger: {
+      borderWidth: 1,
+      borderColor: colors.danger,
+      backgroundColor: colors.surface,
+    },
+    dimmed: {
+      opacity: 0.6,
+    },
+    label: {
+      fontSize: fontSize.body,
+      fontWeight: '600',
+    },
+    filledLabel: {
+      color: colors.onPrimary,
+    },
+    outlineLabel: {
+      color: colors.primaryText,
+    },
+    dangerLabel: {
+      color: colors.danger,
+    },
+  });

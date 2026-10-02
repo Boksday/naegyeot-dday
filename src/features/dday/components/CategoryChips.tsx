@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { colors, fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
+import { fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
+import { type Theme, useThemedStyles } from '../../../theme/useTheme';
 import { ddayStrings } from '../strings';
 import type { Category } from '../types';
 import { CategoryDot } from './CategoryDot';
@@ -17,6 +18,7 @@ type ChipProps = {
 };
 
 function Chip({ label, selected, onPress, role, category }: ChipProps) {
+  const styles = useThemedStyles(createStyles);
   return (
     <Pressable
       accessibilityRole={role}
@@ -42,6 +44,7 @@ export function CategoryFilterChips({
   onChange: (value: CategoryFilter) => void;
   onManage: () => void;
 }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <ScrollView
       horizontal
@@ -85,6 +88,7 @@ export function CategoryPicker({
   value: string;
   onChange: (id: string) => void;
 }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <ScrollView
       horizontal
@@ -106,31 +110,32 @@ export function CategoryPicker({
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    gap: spacing.sm,
-  },
-  chip: {
-    minHeight: MIN_TOUCH_SIZE - 4,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  chipSelected: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primary,
-  },
-  label: {
-    fontSize: fontSize.body,
-    color: colors.text,
-  },
-  labelSelected: {
-    color: colors.primaryText,
-    fontWeight: '700',
-  },
-});
+const createStyles = ({ colors }: Theme) =>
+  StyleSheet.create({
+    row: {
+      gap: spacing.sm,
+    },
+    chip: {
+      minHeight: MIN_TOUCH_SIZE - 4,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    chipSelected: {
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primary,
+    },
+    label: {
+      fontSize: fontSize.body,
+      color: colors.text,
+    },
+    labelSelected: {
+      color: colors.primaryText,
+      fontWeight: '700',
+    },
+  });

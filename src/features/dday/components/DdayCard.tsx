@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { categoryPalette, colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
+import { fontSize, radius, spacing } from '../../../theme/tokens';
+import { type Theme, useTheme, useThemedStyles } from '../../../theme/useTheme';
 import { formatKoreanDate, type LocalDate } from '../logic/dates';
 import { formatDdayLabel, getDayCount, getDdayStatus } from '../logic/ddayStatus';
 import { getMilestones } from '../logic/milestones';
@@ -16,6 +17,8 @@ type DdayCardProps = {
 };
 
 export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors, categoryPalette } = useTheme();
   const status = getDdayStatus(item, today);
   const dayCount = !item.repeatYearly ? getDayCount(item.date, today) : null;
   const color = category?.color ?? 'gray';
@@ -65,7 +68,7 @@ export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
         <Text
           style={[
             styles.label,
-            { color: isToday ? colors.text : isPast ? colors.textMuted : palette.text },
+            { color: isToday ? colors.onPastel : isPast ? colors.textMuted : palette.text },
           ]}
         >
           {status.label}
@@ -75,47 +78,48 @@ export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    gap: spacing.md,
-    ...shadow,
-  },
-  pressed: {
-    opacity: 0.8,
-  },
-  info: {
-    flex: 1,
-    gap: 2,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  title: {
-    flexShrink: 1,
-    fontSize: fontSize.title,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  meta: {
-    fontSize: fontSize.caption,
-    color: colors.textMuted,
-  },
-  labelPill: {
-    minWidth: 72,
-    alignItems: 'center',
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  label: {
-    fontSize: fontSize.title,
-    fontWeight: '800',
-  },
-});
+const createStyles = ({ colors, shadow }: Theme) =>
+  StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.lg,
+      gap: spacing.md,
+      ...shadow,
+    },
+    pressed: {
+      opacity: 0.8,
+    },
+    info: {
+      flex: 1,
+      gap: 2,
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    title: {
+      flexShrink: 1,
+      fontSize: fontSize.title,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    meta: {
+      fontSize: fontSize.caption,
+      color: colors.textMuted,
+    },
+    labelPill: {
+      minWidth: 72,
+      alignItems: 'center',
+      borderRadius: radius.pill,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    label: {
+      fontSize: fontSize.title,
+      fontWeight: '800',
+    },
+  });

@@ -1,8 +1,10 @@
 import { View } from 'react-native';
 
-import { categoryPalette, type CategoryColorKey } from '../../../theme/tokens';
+import { type CategoryColorKey } from '../../../theme/tokens';
+import { useTheme } from '../../../theme/useTheme';
 
 export function CategoryDot({ color, size = 10 }: { color: CategoryColorKey; size?: number }) {
+  const { categoryPalette } = useTheme();
   return (
     <View
       style={{

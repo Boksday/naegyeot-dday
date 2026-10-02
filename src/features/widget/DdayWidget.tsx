@@ -1,6 +1,8 @@
 import { FlexWidget, TextWidget } from 'react-native-android-widget';
 
-import { categoryPalette, colors } from '../../theme/tokens';
+import { lightCategoryPalette as categoryPalette, lightColors as colors } from '../../theme/tokens';
+
+// 홈 위젯은 앱과 따로 그려져 현재 라이트 색만 쓴다.
 import type { WidgetEntry } from './widgetEntries';
 
 type DdayWidgetProps = {
