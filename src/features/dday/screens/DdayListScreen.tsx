@@ -1,6 +1,14 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AD_BANNER_HEIGHT, AdBannerSlot } from '../../../components/AdBannerSlot';
@@ -20,6 +28,8 @@ import { sortForDisplay } from '../logic/ddayStatus';
 import { ddayStrings } from '../strings';
 
 const FAB_SIZE = 60;
+const LOGO_SIZE = 40;
+const APP_LOGO = require('../../../../assets/logo.png');
 
 export function DdayListScreen() {
   const router = useRouter();
@@ -76,7 +86,12 @@ export function DdayListScreen() {
   const header = (
     <View style={styles.header}>
       <View style={styles.brandRow}>
-        <AssetPlaceholder name="앱 로고" size={36} />
+        <Image
+          source={APP_LOGO}
+          style={styles.logo}
+          accessibilityIgnoresInvertColors
+          accessible={false}
+        />
         <View>
           <Text style={styles.appTitle}>{ddayStrings.appTitle}</Text>
           <Text style={styles.today}>{ddayStrings.today(formatKoreanDate(today))}</Text>
@@ -181,6 +196,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
+  },
+  logo: {
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
+    borderRadius: LOGO_SIZE * 0.28,
   },
   appTitle: {
     fontSize: fontSize.headline,

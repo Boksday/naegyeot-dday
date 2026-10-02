@@ -1,5 +1,6 @@
 import { addDays, type LocalDate, toDateAtTime, toLocalDate } from '../logic/dates';
 import { getOccurrences } from '../logic/ddayStatus';
+import { ddayStrings } from '../strings';
 import type { Dday } from '../types';
 
 export const NOTIFY_HOUR = 9;
@@ -35,10 +36,10 @@ function planForItem(item: Dday, now: Date): PlannedNotification[] {
   };
 
   for (const occurrence of occurrences) {
-    if (item.notifyOnDay) add(occurrence, 'day', `오늘은 ${item.title} D-Day예요.`);
+    if (item.notifyOnDay) add(occurrence, 'day', ddayStrings.notificationBodyOnDay);
     if (item.notifyDaysBefore !== null) {
       const days = item.notifyDaysBefore;
-      add(addDays(occurrence, -days), `before${days}`, `${item.title}까지 ${days}일 남았어요.`);
+      add(addDays(occurrence, -days), `before${days}`, ddayStrings.notificationBodyBefore(days));
     }
   }
   return planned;

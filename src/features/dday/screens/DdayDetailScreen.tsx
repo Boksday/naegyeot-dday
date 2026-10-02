@@ -94,6 +94,9 @@ export function DdayDetailScreen({ id }: { id: string }) {
         )}
         <InfoRow label={ddayStrings.fieldRepeat} value={item.repeatYearly ? '켜짐' : '꺼짐'} />
         <InfoRow label={ddayStrings.notifications} value={describeNotifications(item)} />
+        {!hasNotification(item) && (
+          <Text style={styles.nudge}>{ddayStrings.notifyDetailNudge}</Text>
+        )}
       </Card>
 
       {milestones && (
@@ -233,6 +236,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     minHeight: 32,
+  },
+  nudge: {
+    fontSize: fontSize.caption,
+    color: colors.primaryText,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.sm,
+    padding: spacing.md,
+    overflow: 'hidden',
   },
   muted: {
     fontSize: fontSize.caption,

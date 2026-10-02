@@ -29,7 +29,7 @@ export function DdayWidget({ entries }: DdayWidgetProps) {
       {entries === null ? (
         <Message text="앱을 열어 디데이를 확인해 주세요" />
       ) : entries.length === 0 ? (
-        <Message text="디데이를 추가해 보세요" />
+        <Message text="소중한 날을 추가해 보세요" />
       ) : (
         entries.map((entry) => (
           <FlexWidget

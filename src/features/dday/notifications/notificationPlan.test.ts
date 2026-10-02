@@ -26,7 +26,8 @@ describe('planNotifications', () => {
       'id:day:2026-10-10',
     ]);
     expect(planned[1]?.fireAt).toEqual(new Date(2026, 9, 10, NOTIFY_HOUR, 0));
-    expect(planned[0]?.body).toBe('시험까지 3일 남았어요.');
+    expect(planned[0]?.title).toBe('시험');
+    expect(planned[0]?.body).toBe('3일 남았어요. 미리 준비해 볼까요?');
   });
 
   it('이미 지난 시각의 알림은 예약하지 않는다', () => {

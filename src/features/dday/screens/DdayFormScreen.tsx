@@ -40,6 +40,21 @@ type DdayFormScreenProps = {
   initialCategoryId?: string;
 };
 
+function describeNotifySummary(
+  notifyOnDay: boolean,
+  notifyDaysBefore: NotifyDaysBefore | null,
+): string {
+  if (notifyDaysBefore === null) {
+    return notifyOnDay
+      ? ddayStrings.notifySummaryOn(ddayStrings.notifyWhenOnDay, NOTIFY_HOUR)
+      : ddayStrings.notifySummaryOff;
+  }
+  const when = notifyOnDay
+    ? ddayStrings.notifyWhenBoth(notifyDaysBefore)
+    : ddayStrings.notifyBeforeOption(notifyDaysBefore);
+  return ddayStrings.notifySummaryOn(when, NOTIFY_HOUR);
+}
+
 function validateTitle(title: string): string | null {
   const trimmed = title.trim();
   if (trimmed.length === 0) return ddayStrings.titleRequired;
@@ -63,7 +78,8 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
     : (categories[0]?.id ?? selectedCategoryId);
   const [date, setDate] = useState(editing?.date ?? toLocalDate(new Date()));
   const [repeatYearly, setRepeatYearly] = useState(editing?.repeatYearly ?? false);
-  const [notifyOnDay, setNotifyOnDay] = useState(editing?.notifyOnDay ?? false);
+  // 새 디데이는 당일 알림을 켜 둔다. 잊지 않게 돕는 것이 앱의 핵심 쓸모라서다.
+  const [notifyOnDay, setNotifyOnDay] = useState(editing?.notifyOnDay ?? true);
   const [notifyDaysBefore, setNotifyDaysBefore] = useState<NotifyDaysBefore | null>(
     editing?.notifyDaysBefore ?? null,
   );
@@ -181,7 +197,7 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
               ))}
             </View>
           </Field>
-          <Text style={styles.hint}>{ddayStrings.notifyTimeHint(NOTIFY_HOUR)}</Text>
+          <Text style={styles.hint}>{describeNotifySummary(notifyOnDay, notifyDaysBefore)}</Text>
         </Section>
       </ScrollView>
 
