@@ -128,7 +128,7 @@ const createStyles = ({ colors, shadow }: Theme) =>
       ...shadow,
     },
     cardWithLeading: {
-      paddingLeft: spacing.xs,
+      paddingLeft: spacing.md,
     },
     active: {
       borderWidth: 2,
