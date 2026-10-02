@@ -6,7 +6,7 @@ import { AdBannerSlot } from '../../../components/AdBannerSlot';
 import { Card } from '../../../components/Card';
 import { PrimaryButton } from '../../../components/PrimaryButton';
 import { categoryPalette, colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
-import { CategoryIcon } from '../components/CategoryIcon';
+import { CategoryDot } from '../components/CategoryDot';
 import { useDdayStore } from '../DdayStoreProvider';
 import { useToday } from '../hooks/useToday';
 import { findCategory } from '../logic/categories';
@@ -71,10 +71,10 @@ export function DdayDetailScreen({ id }: { id: string }) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={[styles.hero, { backgroundColor: palette.strong }]}>
+      <View style={[styles.hero, { backgroundColor: palette.dot }]}>
         <View style={styles.heroTop}>
           <View style={styles.heroBadge}>
-            <CategoryIcon color={color} size={14} tint={colors.onPrimary} />
+            <CategoryDot color={color} size={10} />
             <Text style={styles.heroBadgeText}>{category?.name ?? ''}</Text>
           </View>
           {item.repeatYearly && <Text style={styles.heroMeta}>{ddayStrings.repeatBadge}</Text>}
@@ -107,7 +107,7 @@ export function DdayDetailScreen({ id }: { id: string }) {
             />
           )}
           {milestones.upcoming.map((milestone) => (
-            <MilestoneRow key={milestone.dayCount} milestone={milestone} accent={palette.strong} />
+            <MilestoneRow key={milestone.dayCount} milestone={milestone} accent={palette.text} />
           ))}
         </Card>
       )}
@@ -196,27 +196,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   heroBadgeText: {
     fontSize: fontSize.caption,
     fontWeight: '600',
-    color: colors.onPrimary,
+    color: colors.text,
   },
   heroTitle: {
     marginTop: spacing.md,
     fontSize: fontSize.title,
     fontWeight: '600',
-    color: colors.onPrimary,
+    color: colors.text,
   },
   heroLabel: {
     fontSize: fontSize.display,
     fontWeight: '800',
-    color: colors.onPrimary,
+    color: colors.text,
   },
   heroMeta: {
     fontSize: fontSize.caption,
-    color: colors.onPrimaryMuted,
+    color: colors.text,
+    opacity: 0.75,
   },
   section: {
     gap: spacing.md,

@@ -5,7 +5,7 @@ import { formatKoreanDate, type LocalDate } from '../logic/dates';
 import { getDayCount, getDdayStatus } from '../logic/ddayStatus';
 import { ddayStrings } from '../strings';
 import type { Category, Dday } from '../types';
-import { CategoryIcon } from './CategoryIcon';
+import { CategoryDot } from './CategoryDot';
 
 type DdayCardProps = {
   item: Dday;
@@ -29,14 +29,13 @@ export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
       onPress={() => onPress(item.id)}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <View style={[styles.accent, { backgroundColor: palette.strong }]} />
-      <View style={[styles.iconWrap, { backgroundColor: palette.soft }]}>
-        <CategoryIcon color={color} size={22} />
-      </View>
       <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={1}>
-          {item.title}
-        </Text>
+        <View style={styles.titleRow}>
+          <CategoryDot color={color} size={12} />
+          <Text style={styles.title} numberOfLines={1}>
+            {item.title}
+          </Text>
+        </View>
         <Text style={styles.meta} numberOfLines={1}>
           {formatKoreanDate(status.targetDate)}
           {item.repeatYearly ? ` · ${ddayStrings.repeatBadge}` : ''}
@@ -47,14 +46,14 @@ export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
         style={[
           styles.labelPill,
           {
-            backgroundColor: isToday ? palette.strong : isPast ? colors.surfaceMuted : palette.soft,
+            backgroundColor: isToday ? palette.dot : isPast ? colors.surfaceMuted : palette.soft,
           },
         ]}
       >
         <Text
           style={[
             styles.label,
-            { color: isToday ? colors.onPrimary : isPast ? colors.textMuted : palette.strong },
+            { color: isToday ? colors.text : isPast ? colors.textMuted : palette.text },
           ]}
         >
           {status.label}
@@ -70,35 +69,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    paddingVertical: spacing.lg,
-    paddingRight: spacing.lg,
-    paddingLeft: spacing.lg + 4,
+    padding: spacing.lg,
     gap: spacing.md,
-    overflow: 'hidden',
     ...shadow,
   },
   pressed: {
     opacity: 0.8,
   },
-  accent: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 4,
-  },
-  iconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   info: {
     flex: 1,
     gap: 2,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   title: {
+    flexShrink: 1,
     fontSize: fontSize.title,
     fontWeight: '700',
     color: colors.text,

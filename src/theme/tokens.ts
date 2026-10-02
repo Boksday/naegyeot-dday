@@ -1,33 +1,37 @@
 import type { ViewStyle } from 'react-native';
 
 export const colors = {
-  background: '#FFF6F1',
+  background: '#FFF8F5',
   surface: '#FFFFFF',
-  surfaceMuted: '#F7EEEA',
-  text: '#2B2321',
-  textMuted: '#6B5D58',
-  primary: '#B5452F',
-  onPrimary: '#FFFFFF',
-  onPrimaryMuted: '#FBE4DC',
-  primarySoft: '#FBE4DC',
-  border: '#EADBD4',
-  danger: '#B3261E',
-  overlay: 'rgba(43, 35, 33, 0.45)',
+  surfaceMuted: '#FBF1EE',
+  text: '#3D2B28',
+  textMuted: '#7A6661',
+  /** 버튼·강조 배경용 파스텔 코랄. 위에는 onPrimary(진한 글자)를 올린다. */
+  primary: '#FFB5A7',
+  onPrimary: '#3D2B28',
+  primarySoft: '#FFE5DE',
+  /** 흰 배경 위 강조 글자용. 파스텔은 글자로 쓰면 대비가 부족하다. */
+  primaryText: '#A8432F',
+  border: '#F0E2DD',
+  danger: '#B83227',
+  overlay: 'rgba(61, 43, 40, 0.4)',
 } as const;
 
 /**
- * 분류에 고를 수 있는 색. strong은 흰 바탕·흰 글자 모두 대비 4.5 이상,
- * soft 배경 위에 strong 글자를 올려도 읽을 수 있게 맞췄다.
+ * 분류 색. 키는 저장 데이터에 들어가므로 이름을 바꾸지 않는다.
+ * - dot: 파스텔 점·강조 배경
+ * - soft: 더 연한 배경
+ * - text: soft·흰 배경 위에서 대비 4.5 이상인 글자색
  */
 export const categoryPalette = {
-  rose: { strong: '#B83A62', soft: '#FBE3EA' },
-  terracotta: { strong: '#B5452F', soft: '#FBE4DC' },
-  blue: { strong: '#2F5D9E', soft: '#E1EAF7' },
-  green: { strong: '#2E7044', soft: '#E0F2E7' },
-  purple: { strong: '#6B4AA6', soft: '#ECE5F7' },
-  amber: { strong: '#8F5400', soft: '#FCEBD2' },
-  teal: { strong: '#1D6F6F', soft: '#DDF1F0' },
-  gray: { strong: '#5B5552', soft: '#ECE8E6' },
+  rose: { dot: '#FFB3C7', soft: '#FFE6EE', text: '#A3365A' },
+  terracotta: { dot: '#FFC4A8', soft: '#FFEDE3', text: '#9C4521' },
+  blue: { dot: '#A8D0FF', soft: '#E5F1FF', text: '#2D5C96' },
+  green: { dot: '#B5E5B9', soft: '#E8F7E9', text: '#2E6A39' },
+  purple: { dot: '#CDB8F5', soft: '#F1EBFD', text: '#5F439E' },
+  amber: { dot: '#FFE08A', soft: '#FFF6D9', text: '#7A5700' },
+  teal: { dot: '#A6E3DA', soft: '#E4F7F4', text: '#1E6961' },
+  gray: { dot: '#D9D2CF', soft: '#F3EFED', text: '#5B5552' },
 } as const;
 
 export type CategoryColorKey = keyof typeof categoryPalette;
@@ -43,9 +47,9 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 10,
-  md: 16,
-  lg: 24,
+  sm: 12,
+  md: 20,
+  lg: 28,
   pill: 999,
 } as const;
 

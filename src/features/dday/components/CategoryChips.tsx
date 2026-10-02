@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import { colors, fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
 import { ddayStrings } from '../strings';
 import type { Category } from '../types';
-import { CategoryIcon } from './CategoryIcon';
+import { CategoryDot } from './CategoryDot';
 
 export const ALL_CATEGORIES = 'all';
 export type CategoryFilter = string;
@@ -24,13 +24,7 @@ function Chip({ label, selected, onPress, role, category }: ChipProps) {
       onPress={onPress}
       style={[styles.chip, selected && styles.chipSelected]}
     >
-      {category && (
-        <CategoryIcon
-          color={category.color}
-          size={16}
-          tint={selected ? colors.surface : undefined}
-        />
-      )}
+      {category && <CategoryDot color={category.color} size={10} />}
       <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
     </Pressable>
   );
@@ -128,15 +122,15 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   chipSelected: {
-    backgroundColor: colors.text,
-    borderColor: colors.text,
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
   },
   label: {
     fontSize: fontSize.body,
     color: colors.text,
   },
   labelSelected: {
-    color: colors.surface,
-    fontWeight: '600',
+    color: colors.primaryText,
+    fontWeight: '700',
   },
 });

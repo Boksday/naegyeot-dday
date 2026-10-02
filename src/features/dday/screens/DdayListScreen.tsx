@@ -58,7 +58,7 @@ export function DdayListScreen() {
   if (loadState.status === 'loading') {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color={colors.primary} />
+        <ActivityIndicator color={colors.primaryText} />
       </View>
     );
   }

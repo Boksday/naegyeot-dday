@@ -23,7 +23,6 @@ import {
   radius,
   spacing,
 } from '../../../theme/tokens';
-import { CategoryIcon } from '../components/CategoryIcon';
 import { useDdayStore } from '../DdayStoreProvider';
 import {
   canAddCategory,
@@ -139,7 +138,7 @@ export function CategoryManageScreen() {
                       style={[styles.swatchRing, key === color && styles.swatchRingSelected]}
                     >
                       <View
-                        style={[styles.swatch, { backgroundColor: categoryPalette[key].strong }]}
+                        style={[styles.swatch, { backgroundColor: categoryPalette[key].dot }]}
                       />
                     </Pressable>
                   ))}
@@ -162,13 +161,8 @@ export function CategoryManageScreen() {
             {categories.map((category, index) => (
               <View key={category.id} style={[styles.row, index > 0 && styles.rowDivider]}>
                 <View
-                  style={[
-                    styles.iconWrap,
-                    { backgroundColor: categoryPalette[category.color].soft },
-                  ]}
-                >
-                  <CategoryIcon color={category.color} size={18} />
-                </View>
+                  style={[styles.dot, { backgroundColor: categoryPalette[category.color].dot }]}
+                />
                 <View style={styles.rowText}>
                   <Text style={styles.rowName}>{category.name}</Text>
                   <Text style={styles.muted}>
@@ -274,12 +268,10 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
   },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+  dot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
   },
   rowText: {
     flex: 1,

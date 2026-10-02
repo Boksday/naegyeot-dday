@@ -1,13 +1,13 @@
 import type { CategoryColorKey } from '../../theme/tokens';
 
 export const colorNames: Record<CategoryColorKey, string> = {
-  rose: '장미',
-  terracotta: '테라코타',
-  blue: '파랑',
-  green: '초록',
-  purple: '보라',
-  amber: '호박',
-  teal: '청록',
+  rose: '분홍',
+  terracotta: '살구',
+  blue: '하늘',
+  green: '연두',
+  purple: '라벤더',
+  amber: '레몬',
+  teal: '민트',
   gray: '회색',
 };
 
@@ -39,7 +39,6 @@ export const ddayStrings = {
   categoryDeleteEmpty: '이 분류에는 디데이가 없어요.',
   categoryDeleteLast: '분류는 하나 이상 있어야 해요.',
   categoryListTitle: '내 분류',
-  categoryIconName: '분류 아이콘',
   adBanner: '광고 배너 영역',
   sectionBasic: '기본 정보',
   sectionRepeat: '반복',

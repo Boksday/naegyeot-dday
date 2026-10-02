@@ -55,7 +55,7 @@ export function DdayWidget({ entries }: DdayWidgetProps) {
               text={entry.label}
               style={{
                 fontSize: 20,
-                color: categoryPalette[entry.color].strong,
+                color: categoryPalette[entry.color].text,
                 fontWeight: '700',
                 marginLeft: 8,
               }}

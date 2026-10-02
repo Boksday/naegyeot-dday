@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     color: colors.onPrimary,
   },
   outlineLabel: {
-    color: colors.primary,
+    color: colors.primaryText,
   },
   dangerLabel: {
     color: colors.danger,

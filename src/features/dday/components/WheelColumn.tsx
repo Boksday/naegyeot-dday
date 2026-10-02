@@ -129,6 +129,6 @@ const styles = StyleSheet.create({
   selectedText: {
     fontSize: fontSize.title,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.primaryText,
   },
 });
