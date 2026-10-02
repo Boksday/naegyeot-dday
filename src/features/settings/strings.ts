@@ -3,7 +3,6 @@ import type { ThemePreference } from './themePreference';
 export const settingsStrings = {
   title: '설정',
   openSettings: '설정 열기',
-  settingsIconName: '설정 아이콘',
   themeSection: '화면 모드',
   themeOptions: {
     system: '시스템 설정 따르기',

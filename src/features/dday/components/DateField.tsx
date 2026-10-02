@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { AssetPlaceholder } from '../../../components/AssetPlaceholder';
+import { Icon } from '../../../components/Icon';
 import { fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
 import { type Theme, useThemedStyles } from '../../../theme/useTheme';
 import { formatKoreanDate, type LocalDate, toLocalDate } from '../logic/dates';
@@ -26,7 +26,7 @@ export function DateField({ value, onChange, accessibilityLabel }: DateFieldProp
         style={({ pressed }) => [styles.field, pressed && styles.pressed]}
       >
         <Text style={styles.text}>{formatKoreanDate(value)}</Text>
-        <AssetPlaceholder name="달력 아이콘" size={20} />
+        <Icon name="editDate" size={22} />
       </Pressable>
       {/* 열 때마다 새로 만들어 휠이 현재 값에서 시작하게 한다. */}
       {isPickerOpen && (

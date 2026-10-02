@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AD_BANNER_HEIGHT, AdBannerSlot } from '../../../components/AdBannerSlot';
 import { AssetPlaceholder } from '../../../components/AssetPlaceholder';
+import { Icon } from '../../../components/Icon';
 import { PrimaryButton } from '../../../components/PrimaryButton';
 import { fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
 import { type Theme, useTheme, useThemedStyles } from '../../../theme/useTheme';
@@ -107,7 +108,7 @@ export function DdayListScreen() {
           onPress={openSettings}
           style={({ pressed }) => [styles.headerButton, pressed && styles.fabPressed]}
         >
-          <AssetPlaceholder name={settingsStrings.settingsIconName} size={24} />
+          <Icon name="settings" size={24} />
         </Pressable>
       </View>
       <CategoryFilterChips
@@ -270,7 +271,7 @@ const createStyles = ({ colors, shadow }: Theme) =>
       width: FAB_SIZE,
       height: FAB_SIZE,
       borderRadius: FAB_SIZE / 2,
-      backgroundColor: colors.primary,
+      backgroundColor: colors.accent,
       alignItems: 'center',
       justifyContent: 'center',
       ...shadow,
@@ -282,7 +283,7 @@ const createStyles = ({ colors, shadow }: Theme) =>
     fabText: {
       fontSize: 32,
       lineHeight: 36,
-      color: colors.onPrimary,
+      color: colors.onAccent,
       fontWeight: '400',
     },
   });
