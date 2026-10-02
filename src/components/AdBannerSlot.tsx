@@ -3,8 +3,11 @@ import { StyleSheet, Text, View } from 'react-native';
 import { fontSize } from '../theme/tokens';
 import { type Theme, useThemedStyles } from '../theme/useTheme';
 
+/** 광고 SDK를 연결하기 전까지 자리 표시는 개발 빌드에서만 보인다. */
+export const AD_SLOT_VISIBLE = __DEV__;
+
 /** 표준 배너(320×50)와 적응형 배너 높이 변화를 감당할 수 있게 잡은 높이 */
-export const AD_BANNER_HEIGHT = 60;
+export const AD_BANNER_HEIGHT = AD_SLOT_VISIBLE ? 60 : 0;
 
 /**
  * 광고 배너가 들어갈 자리 표시. 광고 SDK를 연결하면 이 컴포넌트 안을 실제 배너로 바꾼다.
@@ -12,6 +15,7 @@ export const AD_BANNER_HEIGHT = 60;
  */
 export function AdBannerSlot({ label }: { label: string }) {
   const styles = useThemedStyles(createStyles);
+  if (!AD_SLOT_VISIBLE) return null;
   return (
     <View style={styles.slot} accessible={false} importantForAccessibility="no-hide-descendants">
       <Text style={styles.label}>{label} · 320×50</Text>

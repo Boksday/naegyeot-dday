@@ -12,7 +12,7 @@ type AssetPlaceholderProps = {
 
 /**
  * 디자인 자산이 준비되기 전 자리 표시용 X 상자.
- * 실제 자산으로 바꾸면 이 컴포넌트 사용처를 지운다.
+ * 실제 자산으로 바꾸면 이 컴포넌트 사용처를 지운다. 출시 빌드에서는 그리지 않는다.
  */
 export function AssetPlaceholder({
   name,
@@ -23,6 +23,7 @@ export function AssetPlaceholder({
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const tint = tintProp ?? colors.textMuted;
+  if (!__DEV__) return null;
   const diagonal = size * Math.SQRT2;
   const lineStyle = {
     width: diagonal,
