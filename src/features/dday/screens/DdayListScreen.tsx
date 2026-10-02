@@ -274,7 +274,11 @@ const createStyles = ({ colors, shadow }: Theme) =>
       backgroundColor: colors.accent,
       alignItems: 'center',
       justifyContent: 'center',
-      ...shadow,
+      // 떠 있는 버튼은 테마와 상관없이 같은 그림자를 쓴다(테마 전환 시 그림자 자국 방지).
+      shadowColor: '#000000',
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 4 },
       elevation: 6,
     },
     fabPressed: {

@@ -123,16 +123,27 @@ export const fontSize = {
 /** 접근성 권장 최소 터치 영역 */
 export const MIN_TOUCH_SIZE = 48;
 
+/**
+ * 라이트·다크가 같은 속성을 모두 가져야 한다. 테마 전환 때 속성이 빠지면 Android가
+ * 둥근 모서리 그림자를 다시 계산하지 않아 네모난 그림자 자국이 남는다.
+ */
 export const lightShadow: ViewStyle = {
-  shadowColor: '#5A2E22',
+  shadowColor: '#3A2E25',
   shadowOpacity: 0.08,
   shadowRadius: 12,
   shadowOffset: { width: 0, height: 4 },
   elevation: 2,
+  borderWidth: 0,
+  borderColor: 'transparent',
 };
 
 /** 어두운 바탕에서는 그림자가 보이지 않으므로 테두리로 면을 구분한다. */
 export const darkShadow: ViewStyle = {
+  shadowColor: '#000000',
+  shadowOpacity: 0,
+  shadowRadius: 0,
+  shadowOffset: { width: 0, height: 0 },
+  elevation: 0,
   borderWidth: 1,
   borderColor: darkColors.border,
 };
