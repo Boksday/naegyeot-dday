@@ -11,7 +11,7 @@ import { useAds } from './AdsProvider';
  */
 export function AdBanner() {
   const insets = useSafeAreaInsets();
-  const { canShowAds, bannerUnitId } = useAds();
+  const { canShowAds, bannerUnitId, isPersonalizedAllowed } = useAds();
   const [hasFailed, setHasFailed] = useState(false);
 
   if (!canShowAds || !bannerUnitId || hasFailed) {
@@ -23,6 +23,7 @@ export function AdBanner() {
       <BannerAd
         unitId={bannerUnitId}
         size={BannerAdSize.LARGE_ANCHORED_ADAPTIVE_BANNER}
+        requestOptions={{ requestNonPersonalizedAdsOnly: !isPersonalizedAllowed }}
         onAdFailedToLoad={(error) => {
           console.warn('배너 광고 불러오기 실패', error.message);
           setHasFailed(true);
