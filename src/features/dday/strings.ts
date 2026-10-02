@@ -49,7 +49,7 @@ export const ddayStrings = {
     title: '이름순',
   } satisfies Record<SortMode, string>,
   sortButton: (label: string) => `${label} ▾`,
-  sortManualHint: '카드를 길게 눌러 끌면 순서를 바꿀 수 있어요.',
+  sortManualHint: '왼쪽 손잡이를 끌거나 카드를 길게 눌러 순서를 바꿔요.',
   moveUp: '위로 옮기기',
   moveDown: '아래로 옮기기',
   reorderFailed: '순서를 저장하지 못했어요',

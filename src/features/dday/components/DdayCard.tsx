@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { fontSize, radius, spacing } from '../../../theme/tokens';
@@ -18,9 +19,22 @@ type DdayCardProps = {
   onLongPress?: () => void;
   /** 직접 정렬에서 화면 읽기 사용자를 위한 한 칸 이동 */
   onMove?: (id: string, delta: -1 | 1) => void;
+  /** 카드 왼쪽에 둘 요소(직접 정렬 손잡이) */
+  leading?: ReactNode;
+  /** 끌고 있는 카드 강조 */
+  isActive?: boolean;
 };
 
-export function DdayCard({ item, category, today, onPress, onLongPress, onMove }: DdayCardProps) {
+export function DdayCard({
+  item,
+  category,
+  today,
+  onPress,
+  onLongPress,
+  onMove,
+  leading,
+  isActive = false,
+}: DdayCardProps) {
   const styles = useThemedStyles(createStyles);
   const { colors, categoryPalette } = useTheme();
   const status = getDdayStatus(item, today);
@@ -52,8 +66,14 @@ export function DdayCard({ item, category, today, onPress, onLongPress, onMove }
         if (event.nativeEvent.actionName === 'moveUp') onMove?.(item.id, -1);
         if (event.nativeEvent.actionName === 'moveDown') onMove?.(item.id, 1);
       }}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.card,
+        leading !== undefined && styles.cardWithLeading,
+        isActive && styles.active,
+        pressed && !isActive && styles.pressed,
+      ]}
     >
+      {leading}
       <View style={styles.info}>
         <View style={styles.titleRow}>
           <CategoryDot color={color} size={12} />
@@ -106,6 +126,13 @@ const createStyles = ({ colors, shadow }: Theme) =>
       padding: spacing.lg,
       gap: spacing.md,
       ...shadow,
+    },
+    cardWithLeading: {
+      paddingLeft: spacing.xs,
+    },
+    active: {
+      borderWidth: 2,
+      borderColor: colors.primary,
     },
     pressed: {
       opacity: 0.8,

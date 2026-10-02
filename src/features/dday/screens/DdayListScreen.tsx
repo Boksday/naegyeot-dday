@@ -4,6 +4,7 @@ import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } fr
 import ReorderableList, {
   type ReorderableListReorderEvent,
   reorderItems,
+  useIsActive,
   useReorderableDrag,
 } from 'react-native-reorderable-list';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,6 +21,7 @@ import {
   CategoryFilterChips,
 } from '../components/CategoryChips';
 import { DdayCard } from '../components/DdayCard';
+import { DragHandle } from '../components/DragHandle';
 import { SortSheet } from '../components/SortSheet';
 import { useDdayStore } from '../DdayStoreProvider';
 import { useSortMode } from '../hooks/useSortMode';
@@ -190,6 +192,7 @@ export function DdayListScreen() {
         keyExtractor={(item) => item.id}
         onReorder={handleReorder}
         dragEnabled={isManual}
+        shouldUpdateActiveItem
         renderItem={({ item }) => (
           <ReorderableCard
             item={item}
@@ -245,7 +248,17 @@ type ReorderableCardProps = {
 /** useReorderableDrag는 ReorderableList 안에서만 부를 수 있어 카드를 감싼다. */
 function ReorderableCard({ onMove, ...props }: ReorderableCardProps) {
   const drag = useReorderableDrag();
-  return <DdayCard {...props} onMove={onMove} onLongPress={onMove ? drag : undefined} />;
+  const isActive = useIsActive();
+  if (!onMove) return <DdayCard {...props} />;
+  return (
+    <DdayCard
+      {...props}
+      onMove={onMove}
+      onLongPress={drag}
+      isActive={isActive}
+      leading={<DragHandle onDragStart={drag} />}
+    />
+  );
 }
 
 function Separator() {
