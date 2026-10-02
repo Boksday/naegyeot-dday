@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AdBannerSlot } from '../../../components/AdBannerSlot';
 import { Card } from '../../../components/Card';
@@ -27,6 +28,7 @@ function describeNotifications(item: Dday): string {
 
 export function DdayDetailScreen({ id }: { id: string }) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const today = useToday();
   const { items, categories, removeDday } = useDdayStore();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -70,80 +72,82 @@ export function DdayDetailScreen({ id }: { id: string }) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={[styles.hero, { backgroundColor: palette.dot }]}>
-        <View style={styles.heroTop}>
-          <View style={styles.heroBadge}>
-            <CategoryDot color={color} size={10} />
-            <Text style={styles.heroBadgeText}>{category?.name ?? ''}</Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={[styles.hero, { backgroundColor: palette.dot }]}>
+          <View style={styles.heroTop}>
+            <View style={styles.heroBadge}>
+              <CategoryDot color={color} size={10} />
+              <Text style={styles.heroBadgeText}>{category?.name ?? ''}</Text>
+            </View>
+            {item.repeatYearly && <Text style={styles.heroMeta}>{ddayStrings.repeatBadge}</Text>}
           </View>
-          {item.repeatYearly && <Text style={styles.heroMeta}>{ddayStrings.repeatBadge}</Text>}
+          <Text style={styles.heroTitle}>{item.title}</Text>
+          <Text style={styles.heroLabel}>{status.label}</Text>
+          <Text style={styles.heroMeta}>
+            {formatKoreanDate(status.targetDate)}
+            {dayCount !== null ? ` · ${ddayStrings.dayCount(dayCount)}` : ''}
+          </Text>
         </View>
-        <Text style={styles.heroTitle}>{item.title}</Text>
-        <Text style={styles.heroLabel}>{status.label}</Text>
-        <Text style={styles.heroMeta}>
-          {formatKoreanDate(status.targetDate)}
-          {dayCount !== null ? ` · ${ddayStrings.dayCount(dayCount)}` : ''}
-        </Text>
-      </View>
 
-      <Card style={styles.section}>
-        <InfoRow label={ddayStrings.baseDate} value={formatKoreanDate(item.date)} />
-        {item.repeatYearly && (
-          <InfoRow label={ddayStrings.targetDate} value={formatKoreanDate(status.targetDate)} />
-        )}
-        <InfoRow label={ddayStrings.fieldRepeat} value={item.repeatYearly ? '켜짐' : '꺼짐'} />
-        <InfoRow label={ddayStrings.notifications} value={describeNotifications(item)} />
-        {!hasNotification(item) && (
-          <Text style={styles.nudge}>{ddayStrings.notifyDetailNudge}</Text>
-        )}
-      </Card>
-
-      {item.showMilestones && !milestones && (
-        <Card>
-          <Text style={styles.sectionTitle}>{ddayStrings.milestonesTitle}</Text>
-          <Text style={styles.muted}>{ddayStrings.milestonesPending}</Text>
-        </Card>
-      )}
-
-      {milestones && (
         <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>{ddayStrings.milestonesTitle}</Text>
-          {milestones.latestPassed && (
-            <MilestoneRow
-              milestone={milestones.latestPassed}
-              prefix={ddayStrings.milestoneLatest}
-              accent={colors.textMuted}
-            />
+          <InfoRow label={ddayStrings.baseDate} value={formatKoreanDate(item.date)} />
+          {item.repeatYearly && (
+            <InfoRow label={ddayStrings.targetDate} value={formatKoreanDate(status.targetDate)} />
           )}
-          {milestones.upcoming.map((milestone) => (
-            <MilestoneRow key={milestone.dayCount} milestone={milestone} accent={palette.text} />
-          ))}
+          <InfoRow label={ddayStrings.fieldRepeat} value={item.repeatYearly ? '켜짐' : '꺼짐'} />
+          <InfoRow label={ddayStrings.notifications} value={describeNotifications(item)} />
+          {!hasNotification(item) && (
+            <Text style={styles.nudge}>{ddayStrings.notifyDetailNudge}</Text>
+          )}
         </Card>
-      )}
 
-      <View style={styles.actions}>
-        <View style={styles.actionItem}>
-          <PrimaryButton
-            label={ddayStrings.edit}
-            variant="outline"
-            onPress={() => router.push({ pathname: '/edit', params: { id: item.id } })}
-          />
-        </View>
-        <View style={styles.actionItem}>
-          <PrimaryButton
-            label={ddayStrings.delete}
-            variant="danger"
-            onPress={confirmDelete}
-            disabled={isDeleting}
-          />
-        </View>
-      </View>
+        {item.showMilestones && !milestones && (
+          <Card>
+            <Text style={styles.sectionTitle}>{ddayStrings.milestonesTitle}</Text>
+            <Text style={styles.muted}>{ddayStrings.milestonesPending}</Text>
+          </Card>
+        )}
 
-      <View style={styles.adArea}>
+        {milestones && (
+          <Card style={styles.section}>
+            <Text style={styles.sectionTitle}>{ddayStrings.milestonesTitle}</Text>
+            {milestones.latestPassed && (
+              <MilestoneRow
+                milestone={milestones.latestPassed}
+                prefix={ddayStrings.milestoneLatest}
+                accent={colors.textMuted}
+              />
+            )}
+            {milestones.upcoming.map((milestone) => (
+              <MilestoneRow key={milestone.dayCount} milestone={milestone} accent={palette.text} />
+            ))}
+          </Card>
+        )}
+
+        <View style={styles.actions}>
+          <View style={styles.actionItem}>
+            <PrimaryButton
+              label={ddayStrings.edit}
+              variant="outline"
+              onPress={() => router.push({ pathname: '/edit', params: { id: item.id } })}
+            />
+          </View>
+          <View style={styles.actionItem}>
+            <PrimaryButton
+              label={ddayStrings.delete}
+              variant="danger"
+              onPress={confirmDelete}
+              disabled={isDeleting}
+            />
+          </View>
+        </View>
+      </ScrollView>
+      {/* 목록 화면과 같이 하단 고정. 버튼과는 content의 아래 여백만큼 떨어진다. */}
+      <View style={{ paddingBottom: insets.bottom }}>
         <AdBannerSlot label={ddayStrings.adBanner} />
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -186,6 +190,8 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.lg,
+    // 맨 아래 수정·삭제 버튼과 하단 광고를 떨어뜨려 오클릭을 막는다.
+    paddingBottom: spacing.xxl + spacing.lg,
     gap: spacing.lg,
   },
   hero: {
@@ -280,9 +286,5 @@ const styles = StyleSheet.create({
   },
   actionItem: {
     flex: 1,
-  },
-  adArea: {
-    // 수정·삭제 버튼과 광고를 떨어뜨려 오클릭을 막는다.
-    marginTop: spacing.xxl,
   },
 });
