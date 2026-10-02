@@ -3,6 +3,11 @@ import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '../../components/Card';
+import {
+  getScheduledSummaries,
+  type ScheduledSummary,
+  scheduleTestNotification,
+} from '../dday/notifications/notificationScheduler';
 import { fontSize, MIN_TOUCH_SIZE, spacing } from '../../theme/tokens';
 import { type Theme, useThemedStyles } from '../../theme/useTheme';
 import { settingsStrings } from './strings';
@@ -90,7 +95,55 @@ export function SettingsScreen() {
           </Pressable>
         </Card>
       </View>
+
+      {__DEV__ && <DevNotificationTools />}
     </ScrollView>
+  );
+}
+
+const TEST_NOTIFICATION_DELAY_SECONDS = 10;
+
+/** 알림 전달·예약을 기기에서 확인하기 위한 개발 빌드 전용 도구 */
+function DevNotificationTools() {
+  const styles = useThemedStyles(createStyles);
+  const [scheduled, setScheduled] = useState<ScheduledSummary[] | null>(null);
+
+  const run = (task: () => Promise<void>) => {
+    task().catch((error: unknown) => {
+      Alert.alert('오류', error instanceof Error ? error.message : String(error));
+    });
+  };
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{settingsStrings.devSection}</Text>
+      <Card style={styles.list}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => run(() => scheduleTestNotification(TEST_NOTIFICATION_DELAY_SECONDS))}
+          style={styles.row}
+        >
+          <Text style={styles.rowLabel}>{settingsStrings.devTestNotification}</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => run(async () => setScheduled(await getScheduledSummaries()))}
+          style={[styles.row, styles.rowDivider]}
+        >
+          <Text style={styles.rowLabel}>{settingsStrings.devScheduledList}</Text>
+        </Pressable>
+        {scheduled && (
+          <View style={styles.devList}>
+            <Text style={styles.hint}>{settingsStrings.devScheduledCount(scheduled.length)}</Text>
+            {scheduled.map((item) => (
+              <Text key={item.identifier} style={styles.hint}>
+                {`${item.fireAt} · ${item.identifier}`}
+              </Text>
+            ))}
+          </View>
+        )}
+      </Card>
+    </View>
   );
 }
 
@@ -151,6 +204,10 @@ const createStyles = ({ colors }: Theme) =>
       height: RADIO_SIZE / 2,
       borderRadius: RADIO_SIZE / 4,
       backgroundColor: colors.primaryText,
+    },
+    devList: {
+      paddingBottom: spacing.md,
+      gap: spacing.xs,
     },
     chevron: {
       fontSize: fontSize.headline,

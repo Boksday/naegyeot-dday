@@ -13,4 +13,8 @@ export const settingsStrings = {
   categorySection: '분류',
   manageCategories: '분류 관리',
   saveFailed: '설정을 저장하지 못했어요',
+  devSection: '개발용 (개발 빌드에서만 보임)',
+  devTestNotification: '10초 뒤 테스트 알림',
+  devScheduledList: '예약된 알림 보기',
+  devScheduledCount: (count: number) => `예약된 알림 ${count}개`,
 } as const;

@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { AppState } from 'react-native';
 
 import type { CategoryColorKey } from '../../theme/tokens';
 import { refreshWidget } from '../widget/refreshWidget';
@@ -103,6 +104,17 @@ export function DdayStoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void loadFromStorage();
   }, [loadFromStorage]);
+
+  // 앱으로 돌아올 때 알림 예약과 위젯을 다시 맞춘다.
+  // 휴대폰 설정에서 알림을 다시 켰거나, 자리를 비운 사이 날짜가 바뀐 경우를 위해서다.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && canWriteRef.current) {
+        void applySideEffects(dataRef.current.items);
+      }
+    });
+    return () => subscription.remove();
+  }, [applySideEffects]);
 
   const reload = useCallback(async () => {
     canWriteRef.current = false;

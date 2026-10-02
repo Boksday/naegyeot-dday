@@ -87,7 +87,8 @@ export const ddayStrings = {
   notifyBeforeNone: '없음',
   notifyBeforeOption: (days: number) => `${days}일 전`,
   notifySummaryOff: '알림을 켜 두면 중요한 날을 잊지 않게 알려 드려요.',
-  notifySummaryOn: (when: string, hour: number) => `${when} 오전 ${hour}시에 알려 드릴게요.`,
+  // Android는 배터리 절약을 위해 정확한 시각이 아닌 1시간 안쪽으로 묶어 보낸다.
+  notifySummaryOn: (when: string, hour: number) => `${when} 오전 ${hour}시쯤 알려 드릴게요.`,
   notifyWhenOnDay: '당일',
   notifyWhenBoth: (days: number) => `${days}일 전과 당일`,
   notifyDetailNudge: '알림을 켜 두면 이날을 잊지 않게 알려 드려요. 수정에서 켤 수 있어요.',

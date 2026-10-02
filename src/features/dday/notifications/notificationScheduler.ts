@@ -67,3 +67,42 @@ export async function syncNotifications(items: readonly Dday[]): Promise<Notific
   }
   return 'scheduled';
 }
+
+export type ScheduledSummary = { identifier: string; fireAt: string };
+
+/** 개발 확인용: 지금 예약된 이 앱의 알림 목록 */
+export async function getScheduledSummaries(): Promise<ScheduledSummary[]> {
+  const requests = await Notifications.getAllScheduledNotificationsAsync();
+  return requests.map((request) => {
+    const time = readTriggerTime(request.trigger);
+    return {
+      identifier: request.identifier,
+      fireAt: time === null ? '알 수 없음' : new Date(time).toLocaleString('ko-KR'),
+    };
+  });
+}
+
+/** 플랫폼마다 예약 트리거의 시각 필드 이름이 달라(value/date) 둘 다 확인한다. */
+function readTriggerTime(trigger: unknown): number | null {
+  if (typeof trigger !== 'object' || trigger === null) return null;
+  for (const key of ['value', 'date']) {
+    const value: unknown = Reflect.get(trigger, key);
+    if (typeof value === 'number') return value;
+    if (value instanceof Date) return value.getTime();
+  }
+  return null;
+}
+
+/** 개발 확인용: 실제 알림과 같은 채널·트리거로 몇 초 뒤 알림을 보낸다. */
+export async function scheduleTestNotification(delaySeconds: number): Promise<void> {
+  await ensureAndroidChannel();
+  await Notifications.scheduleNotificationAsync({
+    identifier: 'dev-test',
+    content: { title: '테스트 알림', body: '알림이 잘 도착했어요.' },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DATE,
+      date: Date.now() + delaySeconds * 1000,
+      channelId: ANDROID_CHANNEL_ID,
+    },
+  });
+}
