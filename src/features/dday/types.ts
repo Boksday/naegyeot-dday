@@ -33,6 +33,8 @@ export type Dday = {
   /** 기준 날짜. 매년 반복이면 월·일만 반복에 쓰이고, 연도는 지난 일수 계산에 쓰인다. */
   date: LocalDate;
   repeatYearly: boolean;
+  /** 기준일부터 100일·200일… 기념일을 보여줄지 */
+  showMilestones: boolean;
   notifyOnDay: boolean;
   notifyDaysBefore: NotifyDaysBefore | null;
   createdAt: string;
@@ -41,7 +43,13 @@ export type Dday = {
 
 export type DdayInput = Pick<
   Dday,
-  'title' | 'categoryId' | 'date' | 'repeatYearly' | 'notifyOnDay' | 'notifyDaysBefore'
+  | 'title'
+  | 'categoryId'
+  | 'date'
+  | 'repeatYearly'
+  | 'showMilestones'
+  | 'notifyOnDay'
+  | 'notifyDaysBefore'
 >;
 
 export type DdayData = {

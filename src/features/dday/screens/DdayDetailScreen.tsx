@@ -42,7 +42,7 @@ export function DdayDetailScreen({ id }: { id: string }) {
 
   const status = getDdayStatus(item, today);
   const dayCount = getDayCount(item.date, today);
-  const milestones = getMilestones(item.date, today);
+  const milestones = item.showMilestones ? getMilestones(item.date, today) : null;
   const category = findCategory(categories, item.categoryId);
   const color = category?.color ?? 'gray';
   const palette = categoryPalette[color];
@@ -98,6 +98,13 @@ export function DdayDetailScreen({ id }: { id: string }) {
           <Text style={styles.nudge}>{ddayStrings.notifyDetailNudge}</Text>
         )}
       </Card>
+
+      {item.showMilestones && !milestones && (
+        <Card>
+          <Text style={styles.sectionTitle}>{ddayStrings.milestonesTitle}</Text>
+          <Text style={styles.muted}>{ddayStrings.milestonesPending}</Text>
+        </Card>
+      )}
 
       {milestones && (
         <Card style={styles.section}>

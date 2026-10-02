@@ -8,6 +8,7 @@ function makeDday(overrides: Partial<Dday>): Dday {
     date: '2026-10-10',
     categoryId: 'personal',
     repeatYearly: false,
+    showMilestones: false,
     notifyOnDay: true,
     notifyDaysBefore: null,
     createdAt: '2026-10-01T00:00:00.000Z',

@@ -15,6 +15,7 @@ function makeDday(id: string, categoryId: string): Dday {
     categoryId,
     date: '2026-10-10',
     repeatYearly: false,
+    showMilestones: false,
     notifyOnDay: false,
     notifyDaysBefore: null,
     createdAt: '2026-10-01T00:00:00.000Z',

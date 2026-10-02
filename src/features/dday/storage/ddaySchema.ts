@@ -16,8 +16,9 @@ import {
  * - 1: 최초 버전
  * - 2: 항목에 고정 분류(category) 추가. 1의 항목은 개인으로 옮긴다.
  * - 3: 분류를 사용자가 관리. categories 목록 추가, 항목은 categoryId로 참조한다.
+ * - 4: 100일 단위 기념일을 디데이별 선택(showMilestones)으로. 이전 항목은 늘 보였으므로 true.
  */
-export const CURRENT_SCHEMA_VERSION = 3;
+export const CURRENT_SCHEMA_VERSION = 4;
 
 /** 버전 1 기록을 옮길 분류. 버전 2의 기본값과 같다. */
 const V1_DEFAULT_CATEGORY_ID = 'personal';
@@ -62,6 +63,7 @@ export function isDday(value: unknown): value is Dday {
     categoryId,
     date,
     repeatYearly,
+    showMilestones,
     notifyOnDay,
     notifyDaysBefore,
     createdAt,
@@ -77,6 +79,7 @@ export function isDday(value: unknown): value is Dday {
     typeof date === 'string' &&
     isValidLocalDate(date) &&
     typeof repeatYearly === 'boolean' &&
+    typeof showMilestones === 'boolean' &&
     typeof notifyOnDay === 'boolean' &&
     (notifyDaysBefore === null || isNotifyDaysBefore(notifyDaysBefore)) &&
     typeof createdAt === 'string' &&
@@ -109,6 +112,11 @@ function migrate(data: Record<string, unknown>): { categories: unknown; items: u
     items = items.map((item) => renameKey(item, 'category', 'categoryId'));
     categories = [...DEFAULT_CATEGORIES];
     version = 3;
+  }
+  if (version === 3) {
+    if (!Array.isArray(items)) return null;
+    items = items.map((item) => (isRecord(item) ? { ...item, showMilestones: true } : item));
+    version = 4;
   }
   if (version !== CURRENT_SCHEMA_VERSION) return null;
   return { categories, items };

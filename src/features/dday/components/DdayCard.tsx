@@ -2,7 +2,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { categoryPalette, colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
 import { formatKoreanDate, type LocalDate } from '../logic/dates';
-import { getDayCount, getDdayStatus } from '../logic/ddayStatus';
+import { formatDdayLabel, getDayCount, getDdayStatus } from '../logic/ddayStatus';
+import { getMilestones } from '../logic/milestones';
 import { ddayStrings } from '../strings';
 import type { Category, Dday } from '../types';
 import { CategoryDot } from './CategoryDot';
@@ -19,6 +20,9 @@ export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
   const dayCount = !item.repeatYearly ? getDayCount(item.date, today) : null;
   const color = category?.color ?? 'gray';
   const palette = categoryPalette[color];
+  const nextMilestone = item.showMilestones
+    ? getMilestones(item.date, today, 1)?.upcoming[0]
+    : undefined;
   const isToday = status.daysUntil === 0;
   const isPast = status.daysUntil < 0;
 
@@ -41,6 +45,14 @@ export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
           {item.repeatYearly ? ` · ${ddayStrings.repeatBadge}` : ''}
         </Text>
         {dayCount !== null && <Text style={styles.meta}>{ddayStrings.dayCount(dayCount)}</Text>}
+        {nextMilestone && (
+          <Text style={[styles.meta, { color: palette.text }]}>
+            {ddayStrings.nextMilestone(
+              nextMilestone.dayCount,
+              formatDdayLabel(nextMilestone.daysUntil),
+            )}
+          </Text>
+        )}
       </View>
       <View
         style={[

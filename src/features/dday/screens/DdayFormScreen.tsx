@@ -78,6 +78,7 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
     : (categories[0]?.id ?? selectedCategoryId);
   const [date, setDate] = useState(editing?.date ?? toLocalDate(new Date()));
   const [repeatYearly, setRepeatYearly] = useState(editing?.repeatYearly ?? false);
+  const [showMilestones, setShowMilestones] = useState(editing?.showMilestones ?? false);
   // 새 디데이는 당일 알림을 켜 둔다. 잊지 않게 돕는 것이 앱의 핵심 쓸모라서다.
   const [notifyOnDay, setNotifyOnDay] = useState(editing?.notifyOnDay ?? true);
   const [notifyDaysBefore, setNotifyDaysBefore] = useState<NotifyDaysBefore | null>(
@@ -105,6 +106,7 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
       categoryId,
       date,
       repeatYearly,
+      showMilestones,
       notifyOnDay,
       notifyDaysBefore,
     };
@@ -171,6 +173,12 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
             hint={ddayStrings.fieldRepeatHint}
             value={repeatYearly}
             onChange={setRepeatYearly}
+          />
+          <ToggleRow
+            label={ddayStrings.fieldMilestones}
+            hint={ddayStrings.fieldMilestonesHint}
+            value={showMilestones}
+            onChange={setShowMilestones}
           />
         </Section>
 
