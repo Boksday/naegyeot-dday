@@ -1,77 +1,113 @@
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { colors, fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
-import { categoryLabels, ddayStrings } from '../strings';
-import { DDAY_CATEGORIES, type DdayCategory } from '../types';
+import { ddayStrings } from '../strings';
+import type { Category } from '../types';
 import { CategoryIcon } from './CategoryIcon';
 
-export type CategoryFilter = DdayCategory | 'all';
+export const ALL_CATEGORIES = 'all';
+export type CategoryFilter = string;
 
-type ChipRowProps = {
-  options: readonly CategoryFilter[];
-  value: CategoryFilter;
-  onSelect: (value: CategoryFilter) => void;
-  isFilter: boolean;
+type ChipProps = {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+  role: 'tab' | 'radio' | 'button';
+  category?: Category;
 };
 
-/** 목록 화면의 분류 필터 (전체 포함) */
+function Chip({ label, selected, onPress, role, category }: ChipProps) {
+  return (
+    <Pressable
+      accessibilityRole={role}
+      accessibilityState={role === 'button' ? undefined : { selected }}
+      onPress={onPress}
+      style={[styles.chip, selected && styles.chipSelected]}
+    >
+      {category && (
+        <CategoryIcon
+          color={category.color}
+          size={16}
+          tint={selected ? colors.surface : undefined}
+        />
+      )}
+      <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+/** 목록 화면의 분류 필터. 맨 앞은 전체, 맨 뒤는 분류 관리로 가는 버튼이다. */
 export function CategoryFilterChips({
+  categories,
   value,
   onChange,
+  onManage,
 }: {
+  categories: readonly Category[];
   value: CategoryFilter;
   onChange: (value: CategoryFilter) => void;
+  onManage: () => void;
 }) {
-  return (
-    <ChipRow options={['all', ...DDAY_CATEGORIES]} value={value} onSelect={onChange} isFilter />
-  );
-}
-
-/** 입력 화면의 분류 선택 */
-export function CategoryPicker({
-  value,
-  onChange,
-}: {
-  value: DdayCategory;
-  onChange: (value: DdayCategory) => void;
-}) {
-  return (
-    <ChipRow
-      options={DDAY_CATEGORIES}
-      value={value}
-      onSelect={(option) => {
-        if (option !== 'all') onChange(option);
-      }}
-      isFilter={false}
-    />
-  );
-}
-
-function ChipRow({ options, value, onSelect, isFilter }: ChipRowProps) {
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.row}
-      accessibilityRole={isFilter ? 'tablist' : 'radiogroup'}
+      accessibilityRole="tablist"
     >
-      {options.map((option) => {
-        const selected = option === value;
-        return (
-          <Pressable
-            key={option}
-            accessibilityRole={isFilter ? 'tab' : 'radio'}
-            accessibilityState={{ selected }}
-            onPress={() => onSelect(option)}
-            style={[styles.chip, selected && styles.chipSelected]}
-          >
-            {option !== 'all' && <CategoryIcon category={option} size={16} />}
-            <Text style={[styles.label, selected && styles.labelSelected]}>
-              {option === 'all' ? ddayStrings.filterAll : categoryLabels[option]}
-            </Text>
-          </Pressable>
-        );
-      })}
+      <Chip
+        label={ddayStrings.filterAll}
+        selected={value === ALL_CATEGORIES}
+        onPress={() => onChange(ALL_CATEGORIES)}
+        role="tab"
+      />
+      {categories.map((category) => (
+        <Chip
+          key={category.id}
+          label={category.name}
+          category={category}
+          selected={value === category.id}
+          onPress={() => onChange(category.id)}
+          role="tab"
+        />
+      ))}
+      <Chip
+        label={`＋ ${ddayStrings.manageCategories}`}
+        selected={false}
+        onPress={onManage}
+        role="button"
+      />
+    </ScrollView>
+  );
+}
+
+/** 입력 화면의 분류 선택 */
+export function CategoryPicker({
+  categories,
+  value,
+  onChange,
+}: {
+  categories: readonly Category[];
+  value: string;
+  onChange: (id: string) => void;
+}) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.row}
+      accessibilityRole="radiogroup"
+    >
+      {categories.map((category) => (
+        <Chip
+          key={category.id}
+          label={category.name}
+          category={category}
+          selected={value === category.id}
+          onPress={() => onChange(category.id)}
+          role="radio"
+        />
+      ))}
     </ScrollView>
   );
 }

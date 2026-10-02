@@ -3,10 +3,15 @@ import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AD_BANNER_HEIGHT, AdBannerSlot } from '../../../components/AdBannerSlot';
 import { AssetPlaceholder } from '../../../components/AssetPlaceholder';
 import { PrimaryButton } from '../../../components/PrimaryButton';
 import { colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
-import { type CategoryFilter, CategoryFilterChips } from '../components/CategoryChips';
+import {
+  ALL_CATEGORIES,
+  type CategoryFilter,
+  CategoryFilterChips,
+} from '../components/CategoryChips';
 import { DdayCard } from '../components/DdayCard';
 import { useDdayStore } from '../DdayStoreProvider';
 import { useToday } from '../hooks/useToday';
@@ -20,11 +25,20 @@ export function DdayListScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const today = useToday();
-  const { items, loadState, notificationSync, reload } = useDdayStore();
-  const [filter, setFilter] = useState<CategoryFilter>('all');
+  const { items, categories, loadState, notificationSync, reload } = useDdayStore();
+  const [selectedFilter, setFilter] = useState<CategoryFilter>(ALL_CATEGORIES);
+  // 고른 분류가 삭제되면 전체로 돌아간다.
+  const filter = categories.some((category) => category.id === selectedFilter)
+    ? selectedFilter
+    : ALL_CATEGORIES;
+  const categoryById = useMemo(
+    () => new Map(categories.map((category) => [category.id, category])),
+    [categories],
+  );
 
   const visible = useMemo(() => {
-    const filtered = filter === 'all' ? items : items.filter((item) => item.category === filter);
+    const filtered =
+      filter === ALL_CATEGORIES ? items : items.filter((item) => item.categoryId === filter);
     return sortForDisplay(filtered, today);
   }, [items, filter, today]);
 
@@ -34,9 +48,12 @@ export function DdayListScreen() {
   );
   const openNew = useCallback(
     () =>
-      router.push(filter === 'all' ? '/edit' : { pathname: '/edit', params: { category: filter } }),
+      router.push(
+        filter === ALL_CATEGORIES ? '/edit' : { pathname: '/edit', params: { category: filter } },
+      ),
     [router, filter],
   );
+  const openCategories = useCallback(() => router.push('/categories'), [router]);
 
   if (loadState.status === 'loading') {
     return (
@@ -65,7 +82,12 @@ export function DdayListScreen() {
           <Text style={styles.today}>{ddayStrings.today(formatKoreanDate(today))}</Text>
         </View>
       </View>
-      {items.length > 0 && <CategoryFilterChips value={filter} onChange={setFilter} />}
+      <CategoryFilterChips
+        categories={categories}
+        value={filter}
+        onChange={setFilter}
+        onManage={openCategories}
+      />
       {notificationSync === 'permission-denied' && (
         <Text style={styles.banner}>{ddayStrings.notificationBlocked}</Text>
       )}
@@ -91,10 +113,17 @@ export function DdayListScreen() {
       <FlatList
         data={visible}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <DdayCard item={item} today={today} onPress={openDetail} />}
+        renderItem={({ item }) => (
+          <DdayCard
+            item={item}
+            category={categoryById.get(item.categoryId)}
+            today={today}
+            onPress={openDetail}
+          />
+        )}
         contentContainerStyle={[
           styles.list,
-          { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + FAB_SIZE + 48 },
+          { paddingTop: insets.top + spacing.lg, paddingBottom: FAB_SIZE + 48 },
         ]}
         ItemSeparatorComponent={Separator}
         ListHeaderComponent={header}
@@ -107,13 +136,16 @@ export function DdayListScreen() {
           onPress={openNew}
           style={({ pressed }) => [
             styles.fab,
-            { bottom: insets.bottom + spacing.xl },
+            { bottom: insets.bottom + AD_BANNER_HEIGHT + spacing.xl },
             pressed && styles.fabPressed,
           ]}
         >
           <Text style={styles.fabText}>+</Text>
         </Pressable>
       )}
+      <View style={{ paddingBottom: insets.bottom }}>
+        <AdBannerSlot label={ddayStrings.adBanner} />
+      </View>
     </View>
   );
 }

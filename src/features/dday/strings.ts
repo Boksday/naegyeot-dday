@@ -1,9 +1,14 @@
-import type { DdayCategory } from './types';
+import type { CategoryColorKey } from '../../theme/tokens';
 
-export const categoryLabels: Record<DdayCategory, string> = {
-  couple: '연인',
-  personal: '개인',
-  work: '업무',
+export const colorNames: Record<CategoryColorKey, string> = {
+  rose: '장미',
+  terracotta: '테라코타',
+  blue: '파랑',
+  green: '초록',
+  purple: '보라',
+  amber: '호박',
+  teal: '청록',
+  gray: '회색',
 };
 
 export const ddayStrings = {
@@ -16,6 +21,26 @@ export const ddayStrings = {
   countSummary: (count: number) => `디데이 ${count}개`,
   emptyCategory: '이 분류에는 아직 디데이가 없어요.',
   fieldCategory: '분류',
+  manageCategories: '편집',
+  categoriesTitle: '분류 관리',
+  categoryNamePlaceholder: '새 분류 이름',
+  categoryColor: '색상',
+  categoryAdd: '분류 추가',
+  categoryLimit: (max: number) => `분류는 ${max}개까지 만들 수 있어요.`,
+  categoryNameErrors: {
+    empty: '이름을 입력해 주세요.',
+    'too-long': (max: number) => `이름은 ${max}자 이내로 입력해 주세요.`,
+    duplicate: '같은 이름의 분류가 이미 있어요.',
+  },
+  categoryItemCount: (count: number) => `디데이 ${count}개`,
+  categoryDeleteTitle: (name: string) => `'${name}' 분류를 삭제할까요?`,
+  categoryDeleteMove: (count: number, fallback: string) =>
+    `이 분류의 디데이 ${count}개는 '${fallback}' 분류로 옮겨져요.`,
+  categoryDeleteEmpty: '이 분류에는 디데이가 없어요.',
+  categoryDeleteLast: '분류는 하나 이상 있어야 해요.',
+  categoryListTitle: '내 분류',
+  categoryIconName: '분류 아이콘',
+  adBanner: '광고 배너 영역',
   sectionBasic: '기본 정보',
   sectionRepeat: '반복',
   sectionNotification: '알림',

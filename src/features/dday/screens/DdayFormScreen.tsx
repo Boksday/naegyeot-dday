@@ -25,18 +25,19 @@ import { NOTIFY_HOUR } from '../notifications/notificationPlan';
 import { requestNotificationPermission } from '../notifications/notificationScheduler';
 import { ddayStrings } from '../strings';
 import {
-  type DdayCategory,
   type DdayInput,
-  DEFAULT_CATEGORY,
   hasNotification,
   MAX_TITLE_LENGTH,
   NOTIFY_DAYS_BEFORE_OPTIONS,
   type NotifyDaysBefore,
 } from '../types';
 
+/** 새 디데이의 기본 분류. 없으면 첫 분류를 쓴다. */
+const DEFAULT_NEW_CATEGORY_ID = 'personal';
+
 type DdayFormScreenProps = {
   editingId?: string;
-  initialCategory?: DdayCategory;
+  initialCategoryId?: string;
 };
 
 function validateTitle(title: string): string | null {
@@ -46,16 +47,20 @@ function validateTitle(title: string): string | null {
   return null;
 }
 
-export function DdayFormScreen({ editingId, initialCategory }: DdayFormScreenProps) {
+export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { items, addDday, updateDday } = useDdayStore();
+  const { items, categories, addDday, updateDday } = useDdayStore();
   const editing = editingId ? items.find((item) => item.id === editingId) : undefined;
 
   const [title, setTitle] = useState(editing?.title ?? '');
-  const [category, setCategory] = useState<DdayCategory>(
-    editing?.category ?? initialCategory ?? DEFAULT_CATEGORY,
+  const [selectedCategoryId, setCategoryId] = useState(
+    editing?.categoryId ?? initialCategoryId ?? DEFAULT_NEW_CATEGORY_ID,
   );
+  // 고른 분류가 없어졌으면(삭제 등) 첫 분류를 쓴다.
+  const categoryId = categories.some((category) => category.id === selectedCategoryId)
+    ? selectedCategoryId
+    : (categories[0]?.id ?? selectedCategoryId);
   const [date, setDate] = useState(editing?.date ?? toLocalDate(new Date()));
   const [repeatYearly, setRepeatYearly] = useState(editing?.repeatYearly ?? false);
   const [notifyOnDay, setNotifyOnDay] = useState(editing?.notifyOnDay ?? false);
@@ -81,7 +86,7 @@ export function DdayFormScreen({ editingId, initialCategory }: DdayFormScreenPro
 
     const input: DdayInput = {
       title: title.trim(),
-      category,
+      categoryId,
       date,
       repeatYearly,
       notifyOnDay,
@@ -121,7 +126,7 @@ export function DdayFormScreen({ editingId, initialCategory }: DdayFormScreenPro
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Section title={ddayStrings.sectionBasic}>
           <Field label={ddayStrings.fieldCategory}>
-            <CategoryPicker value={category} onChange={setCategory} />
+            <CategoryPicker categories={categories} value={categoryId} onChange={setCategoryId} />
           </Field>
           <Field label={ddayStrings.fieldTitle}>
             <TextInput

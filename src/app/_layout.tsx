@@ -20,6 +20,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ title: ddayStrings.appTitle, headerShown: false }} />
         <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
         <Stack.Screen name="dday/[id]" options={{ title: '' }} />
+        <Stack.Screen name="categories" options={{ title: ddayStrings.categoriesTitle }} />
       </Stack>
     </DdayStoreProvider>
   );

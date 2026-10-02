@@ -1,9 +1,11 @@
 import { isValidLocalDate } from '../logic/dates';
+import { CATEGORY_COLOR_KEYS, type CategoryColorKey } from '../../../theme/tokens';
 import {
-  DDAY_CATEGORIES,
+  type Category,
   type Dday,
-  type DdayCategory,
-  DEFAULT_CATEGORY,
+  type DdayData,
+  DEFAULT_CATEGORIES,
+  MAX_CATEGORY_NAME_LENGTH,
   MAX_TITLE_LENGTH,
   NOTIFY_DAYS_BEFORE_OPTIONS,
   type NotifyDaysBefore,
@@ -12,14 +14,18 @@ import {
 /**
  * 저장 형식 버전.
  * - 1: 최초 버전
- * - 2: category 추가. 1의 항목은 개인(DEFAULT_CATEGORY)으로 옮긴다.
+ * - 2: 항목에 고정 분류(category) 추가. 1의 항목은 개인으로 옮긴다.
+ * - 3: 분류를 사용자가 관리. categories 목록 추가, 항목은 categoryId로 참조한다.
  */
-export const CURRENT_SCHEMA_VERSION = 2;
+export const CURRENT_SCHEMA_VERSION = 3;
 
-type StoredData = { version: typeof CURRENT_SCHEMA_VERSION; items: Dday[] };
+/** 버전 1 기록을 옮길 분류. 버전 2의 기본값과 같다. */
+const V1_DEFAULT_CATEGORY_ID = 'personal';
+
+type StoredData = { version: typeof CURRENT_SCHEMA_VERSION } & DdayData;
 
 export type ParseResult =
-  | { ok: true; items: Dday[] }
+  | ({ ok: true } & DdayData)
   | { ok: false; reason: 'invalid-json' | 'invalid-data' | 'unsupported-version' };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -30,8 +36,22 @@ function isNotifyDaysBefore(value: unknown): value is NotifyDaysBefore {
   return NOTIFY_DAYS_BEFORE_OPTIONS.some((option) => option === value);
 }
 
-function isCategory(value: unknown): value is DdayCategory {
-  return DDAY_CATEGORIES.some((category) => category === value);
+function isColorKey(value: unknown): value is CategoryColorKey {
+  return CATEGORY_COLOR_KEYS.some((key) => key === value);
+}
+
+export function isCategory(value: unknown): value is Category {
+  if (!isRecord(value)) return false;
+  const { id, name, color, createdAt } = value;
+  return (
+    typeof id === 'string' &&
+    id.length > 0 &&
+    typeof name === 'string' &&
+    name.trim().length > 0 &&
+    name.length <= MAX_CATEGORY_NAME_LENGTH &&
+    isColorKey(color) &&
+    typeof createdAt === 'string'
+  );
 }
 
 export function isDday(value: unknown): value is Dday {
@@ -39,7 +59,7 @@ export function isDday(value: unknown): value is Dday {
   const {
     id,
     title,
-    category,
+    categoryId,
     date,
     repeatYearly,
     notifyOnDay,
@@ -53,7 +73,7 @@ export function isDday(value: unknown): value is Dday {
     typeof title === 'string' &&
     title.trim().length > 0 &&
     title.length <= MAX_TITLE_LENGTH &&
-    isCategory(category) &&
+    typeof categoryId === 'string' &&
     typeof date === 'string' &&
     isValidLocalDate(date) &&
     typeof repeatYearly === 'boolean' &&
@@ -64,13 +84,38 @@ export function isDday(value: unknown): value is Dday {
   );
 }
 
-/** 버전별로 한 단계씩 올린다. 알 수 없는 형식이면 null. */
-function migrateItems(version: number, items: unknown[]): unknown[] | null {
+function renameKey(item: unknown, from: string, to: string): unknown {
+  if (!isRecord(item) || !(from in item)) return item;
+  const { [from]: value, ...rest } = item;
+  return { ...rest, [to]: value };
+}
+
+/** 한 버전씩 올려 최신 형식의 { categories, items } 후보를 만든다. 알 수 없는 형식이면 null. */
+function migrate(data: Record<string, unknown>): { categories: unknown; items: unknown } | null {
+  let version = data.version;
+  let items = data.items;
+  let categories = data.categories;
+
   if (version === 1) {
-    return items.map((item) => (isRecord(item) ? { ...item, category: DEFAULT_CATEGORY } : item));
+    if (!Array.isArray(items)) return null;
+    items = items.map((item) =>
+      isRecord(item) ? { ...item, category: V1_DEFAULT_CATEGORY_ID } : item,
+    );
+    version = 2;
   }
-  if (version === CURRENT_SCHEMA_VERSION) return items;
-  return null;
+  if (version === 2) {
+    if (!Array.isArray(items)) return null;
+    // 버전 2의 고정 분류 id(couple/personal/work)는 기본 분류 id와 같다.
+    items = items.map((item) => renameKey(item, 'category', 'categoryId'));
+    categories = [...DEFAULT_CATEGORIES];
+    version = 3;
+  }
+  if (version !== CURRENT_SCHEMA_VERSION) return null;
+  return { categories, items };
+}
+
+function hasUniqueIds(values: readonly { id: string }[]): boolean {
+  return new Set(values.map((value) => value.id)).size === values.length;
 }
 
 /**
@@ -78,7 +123,7 @@ function migrateItems(version: number, items: unknown[]): unknown[] | null {
  * 호출하는 쪽은 원본을 덮어쓰지 않아야 한다.
  */
 export function parseStoredData(raw: string | null): ParseResult {
-  if (raw === null) return { ok: true, items: [] };
+  if (raw === null) return { ok: true, categories: [...DEFAULT_CATEGORIES], items: [] };
 
   let parsed: unknown;
   try {
@@ -87,18 +132,38 @@ export function parseStoredData(raw: string | null): ParseResult {
     return { ok: false, reason: 'invalid-json' };
   }
 
-  if (!isRecord(parsed) || typeof parsed.version !== 'number' || !Array.isArray(parsed.items)) {
+  if (!isRecord(parsed) || typeof parsed.version !== 'number') {
     return { ok: false, reason: 'invalid-data' };
   }
   // 새 버전 앱에서 저장한 데이터를 구버전이 덮어쓰지 않도록 막는다.
   if (parsed.version > CURRENT_SCHEMA_VERSION) return { ok: false, reason: 'unsupported-version' };
 
-  const items = migrateItems(parsed.version, parsed.items);
-  if (!items || !items.every(isDday)) return { ok: false, reason: 'invalid-data' };
-  return { ok: true, items };
+  const migrated = migrate(parsed);
+  if (!migrated) return { ok: false, reason: 'invalid-data' };
+  const { categories, items } = migrated;
+  if (
+    !Array.isArray(categories) ||
+    categories.length === 0 ||
+    !categories.every(isCategory) ||
+    !hasUniqueIds(categories) ||
+    !Array.isArray(items) ||
+    !items.every(isDday) ||
+    !hasUniqueIds(items)
+  ) {
+    return { ok: false, reason: 'invalid-data' };
+  }
+  const categoryIds = new Set(categories.map((category) => category.id));
+  if (!items.every((item) => categoryIds.has(item.categoryId))) {
+    return { ok: false, reason: 'invalid-data' };
+  }
+  return { ok: true, categories, items };
 }
 
-export function serializeStoredData(items: readonly Dday[]): string {
-  const data: StoredData = { version: CURRENT_SCHEMA_VERSION, items: [...items] };
-  return JSON.stringify(data);
+export function serializeStoredData(data: DdayData): string {
+  const stored: StoredData = {
+    version: CURRENT_SCHEMA_VERSION,
+    categories: [...data.categories],
+    items: [...data.items],
+  };
+  return JSON.stringify(stored);
 }

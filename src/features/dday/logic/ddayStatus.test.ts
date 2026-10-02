@@ -14,7 +14,7 @@ function makeDday(overrides: Partial<Dday>): Dday {
     id: 'id',
     title: '테스트',
     date: TODAY,
-    category: 'personal',
+    categoryId: 'personal',
     repeatYearly: false,
     notifyOnDay: false,
     notifyDaysBefore: null,

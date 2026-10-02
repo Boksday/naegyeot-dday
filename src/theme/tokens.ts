@@ -15,12 +15,23 @@ export const colors = {
   overlay: 'rgba(43, 35, 33, 0.45)',
 } as const;
 
-/** 분류별 강조색. strong은 흰 글자, soft 위에는 strong 글자를 올려도 대비 4.5 이상이다. */
-export const categoryColors = {
-  couple: { strong: '#B83A62', soft: '#FBE3EA' },
-  personal: { strong: '#B5452F', soft: '#FBE4DC' },
-  work: { strong: '#2F5D9E', soft: '#E1EAF7' },
+/**
+ * 분류에 고를 수 있는 색. strong은 흰 바탕·흰 글자 모두 대비 4.5 이상,
+ * soft 배경 위에 strong 글자를 올려도 읽을 수 있게 맞췄다.
+ */
+export const categoryPalette = {
+  rose: { strong: '#B83A62', soft: '#FBE3EA' },
+  terracotta: { strong: '#B5452F', soft: '#FBE4DC' },
+  blue: { strong: '#2F5D9E', soft: '#E1EAF7' },
+  green: { strong: '#2E7044', soft: '#E0F2E7' },
+  purple: { strong: '#6B4AA6', soft: '#ECE5F7' },
+  amber: { strong: '#8F5400', soft: '#FCEBD2' },
+  teal: { strong: '#1D6F6F', soft: '#DDF1F0' },
+  gray: { strong: '#5B5552', soft: '#ECE8E6' },
 } as const;
+
+export type CategoryColorKey = keyof typeof categoryPalette;
+export const CATEGORY_COLOR_KEYS = Object.keys(categoryPalette) as CategoryColorKey[];
 
 export const spacing = {
   xs: 4,

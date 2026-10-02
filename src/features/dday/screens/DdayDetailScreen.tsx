@@ -2,16 +2,18 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { AssetPlaceholder } from '../../../components/AssetPlaceholder';
+import { AdBannerSlot } from '../../../components/AdBannerSlot';
 import { Card } from '../../../components/Card';
 import { PrimaryButton } from '../../../components/PrimaryButton';
-import { categoryColors, colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
+import { categoryPalette, colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
+import { CategoryIcon } from '../components/CategoryIcon';
 import { useDdayStore } from '../DdayStoreProvider';
 import { useToday } from '../hooks/useToday';
+import { findCategory } from '../logic/categories';
 import { formatKoreanDate } from '../logic/dates';
 import { formatDdayLabel, getDayCount, getDdayStatus } from '../logic/ddayStatus';
 import { getMilestones, type Milestone } from '../logic/milestones';
-import { categoryLabels, ddayStrings } from '../strings';
+import { ddayStrings } from '../strings';
 import { type Dday, hasNotification } from '../types';
 
 function describeNotifications(item: Dday): string {
@@ -26,7 +28,7 @@ function describeNotifications(item: Dday): string {
 export function DdayDetailScreen({ id }: { id: string }) {
   const router = useRouter();
   const today = useToday();
-  const { items, removeDday } = useDdayStore();
+  const { items, categories, removeDday } = useDdayStore();
   const [isDeleting, setIsDeleting] = useState(false);
   const item = items.find((candidate) => candidate.id === id);
 
@@ -41,7 +43,9 @@ export function DdayDetailScreen({ id }: { id: string }) {
   const status = getDdayStatus(item, today);
   const dayCount = getDayCount(item.date, today);
   const milestones = getMilestones(item.date, today);
-  const palette = categoryColors[item.category];
+  const category = findCategory(categories, item.categoryId);
+  const color = category?.color ?? 'gray';
+  const palette = categoryPalette[color];
 
   const confirmDelete = () => {
     Alert.alert(ddayStrings.deleteConfirmTitle, ddayStrings.deleteConfirmBody, [
@@ -70,8 +74,8 @@ export function DdayDetailScreen({ id }: { id: string }) {
       <View style={[styles.hero, { backgroundColor: palette.strong }]}>
         <View style={styles.heroTop}>
           <View style={styles.heroBadge}>
-            <AssetPlaceholder name="분류 아이콘" size={14} tint={colors.onPrimary} />
-            <Text style={styles.heroBadgeText}>{categoryLabels[item.category]}</Text>
+            <CategoryIcon color={color} size={14} tint={colors.onPrimary} />
+            <Text style={styles.heroBadgeText}>{category?.name ?? ''}</Text>
           </View>
           {item.repeatYearly && <Text style={styles.heroMeta}>{ddayStrings.repeatBadge}</Text>}
         </View>
@@ -124,6 +128,10 @@ export function DdayDetailScreen({ id }: { id: string }) {
             disabled={isDeleting}
           />
         </View>
+      </View>
+
+      <View style={styles.adArea}>
+        <AdBannerSlot label={ddayStrings.adBanner} />
       </View>
     </ScrollView>
   );
@@ -253,5 +261,9 @@ const styles = StyleSheet.create({
   },
   actionItem: {
     flex: 1,
+  },
+  adArea: {
+    // 수정·삭제 버튼과 광고를 떨어뜨려 오클릭을 막는다.
+    marginTop: spacing.xxl,
   },
 });

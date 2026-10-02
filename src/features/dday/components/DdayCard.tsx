@@ -1,35 +1,37 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { categoryColors, colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
+import { categoryPalette, colors, fontSize, radius, shadow, spacing } from '../../../theme/tokens';
 import { formatKoreanDate, type LocalDate } from '../logic/dates';
 import { getDayCount, getDdayStatus } from '../logic/ddayStatus';
-import { categoryLabels, ddayStrings } from '../strings';
-import type { Dday } from '../types';
+import { ddayStrings } from '../strings';
+import type { Category, Dday } from '../types';
 import { CategoryIcon } from './CategoryIcon';
 
 type DdayCardProps = {
   item: Dday;
+  category: Category | undefined;
   today: LocalDate;
   onPress: (id: string) => void;
 };
 
-export function DdayCard({ item, today, onPress }: DdayCardProps) {
+export function DdayCard({ item, category, today, onPress }: DdayCardProps) {
   const status = getDdayStatus(item, today);
   const dayCount = !item.repeatYearly ? getDayCount(item.date, today) : null;
-  const palette = categoryColors[item.category];
+  const color = category?.color ?? 'gray';
+  const palette = categoryPalette[color];
   const isToday = status.daysUntil === 0;
   const isPast = status.daysUntil < 0;
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${categoryLabels[item.category]}, ${item.title}, ${status.label}, ${formatKoreanDate(status.targetDate)}`}
+      accessibilityLabel={`${category?.name ?? ''}, ${item.title}, ${status.label}, ${formatKoreanDate(status.targetDate)}`}
       onPress={() => onPress(item.id)}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={[styles.accent, { backgroundColor: palette.strong }]} />
       <View style={[styles.iconWrap, { backgroundColor: palette.soft }]}>
-        <CategoryIcon category={item.category} size={22} />
+        <CategoryIcon color={color} size={22} />
       </View>
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={1}>
