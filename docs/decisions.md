@@ -77,3 +77,10 @@
 - 광고 ID는 `.env`로 주입하고 커밋하지 않는다. 운영 빌드에 실제 배너 ID가 없으면 광고를 띄우지 않는다(테스트 광고가 사용자에게 나가는 것을 막는다).
 - 라이브러리 17.2의 Android build.gradle 버그(app.json에 전용 키가 없으면 실패)를 `RNGMA_ANDROID_BACKEND=classic` Gradle 속성으로 우회한다(`plugins/withGradleProperties.js`). 라이브러리 업데이트 때 다시 확인한다.
 - 분류 칩 줄은 `react-native-gesture-handler`의 ScrollView를 쓴다. 기본 ScrollView는 직접 정렬 목록의 제스처에 가로 밀기를 빼앗긴다.
+
+## 2026-10-02 음력 디데이
+
+- `korean-lunar-calendar`(MIT, 한국천문연구원 기준, 음력 1000~2050년). 중국 음력과 날짜가 다를 수 있어 한국 기준 라이브러리를 쓴다.
+- 저장 스키마 버전 6: `calendar`(solar/lunar), `lunar`(년·월·일·윤달). `date`에는 기준 음력 날짜의 양력 값을 함께 둬 지난 일수·100일 기념일 계산은 양력으로 한다.
+- 매년 반복 음력은 해마다 같은 음력 월·일을 양력으로 바꾼다. 그해에 윤달이 없으면 평달, 30일이 없으면 29일로 챙긴다(관습).
+- 2050년 이후는 변환할 수 없어 반복 날짜를 구하지 못한다. 그때 라이브러리를 갱신해야 한다.

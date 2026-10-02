@@ -19,13 +19,16 @@ import { PrimaryButton } from '../../../components/PrimaryButton';
 import { fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
 import { type Theme, useTheme, useThemedStyles } from '../../../theme/useTheme';
 import { CategoryPicker } from '../components/CategoryChips';
-import { DateField } from '../components/DateField';
+import { DateField, type DateValue } from '../components/DateField';
 import { useDdayStore } from '../DdayStoreProvider';
 import { toLocalDate } from '../logic/dates';
+import { solarToLunar } from '../logic/lunar';
 import { NOTIFY_HOUR } from '../notifications/notificationPlan';
 import { requestNotificationPermission } from '../notifications/notificationScheduler';
 import { ddayStrings } from '../strings';
 import {
+  DDAY_CALENDARS,
+  type DdayCalendar,
   type DdayInput,
   hasNotification,
   MAX_TITLE_LENGTH,
@@ -79,7 +82,11 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
   const categoryId = categories.some((category) => category.id === selectedCategoryId)
     ? selectedCategoryId
     : (categories[0]?.id ?? selectedCategoryId);
-  const [date, setDate] = useState(editing?.date ?? toLocalDate(new Date()));
+  const [calendar, setCalendar] = useState<DdayCalendar>(editing?.calendar ?? 'solar');
+  const [dateValue, setDateValue] = useState<DateValue>(() => ({
+    date: editing?.date ?? toLocalDate(new Date()),
+    lunar: editing?.lunar ?? null,
+  }));
   const [repeatYearly, setRepeatYearly] = useState(editing?.repeatYearly ?? false);
   const [showMilestones, setShowMilestones] = useState(editing?.showMilestones ?? false);
   // 새 디데이는 당일 알림을 켜 둔다. 잊지 않게 돕는 것이 앱의 핵심 쓸모라서다.
@@ -98,6 +105,20 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
     );
   }
 
+  /** 양력↔음력을 바꾸면 같은 날을 가리키도록 음력 날짜를 맞춘다. */
+  const changeCalendar = (next: DdayCalendar) => {
+    if (next === calendar) return;
+    if (next === 'lunar') {
+      const lunar = dateValue.lunar ?? solarToLunar(dateValue.date);
+      if (!lunar) {
+        Alert.alert(ddayStrings.lunarOutOfRange);
+        return;
+      }
+      setDateValue({ date: dateValue.date, lunar });
+    }
+    setCalendar(next);
+  };
+
   const save = async () => {
     if (isSaving) return;
     const error = validateTitle(title);
@@ -107,7 +128,9 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
     const input: DdayInput = {
       title: title.trim(),
       categoryId,
-      date,
+      date: dateValue.date,
+      calendar,
+      lunar: calendar === 'lunar' ? dateValue.lunar : null,
       repeatYearly,
       showMilestones,
       notifyOnDay,
@@ -166,7 +189,22 @@ export function DdayFormScreen({ editingId, initialCategoryId }: DdayFormScreenP
             {titleError !== null && <Text style={styles.error}>{titleError}</Text>}
           </Field>
           <Field label={ddayStrings.fieldDate}>
-            <DateField value={date} onChange={setDate} accessibilityLabel={ddayStrings.fieldDate} />
+            <View style={styles.chips}>
+              {DDAY_CALENDARS.map((option) => (
+                <OptionChip
+                  key={option}
+                  label={option === 'lunar' ? ddayStrings.calendarLunar : ddayStrings.calendarSolar}
+                  selected={calendar === option}
+                  onPress={() => changeCalendar(option)}
+                />
+              ))}
+            </View>
+            <DateField
+              calendar={calendar}
+              value={dateValue}
+              onChange={setDateValue}
+              accessibilityLabel={ddayStrings.fieldDate}
+            />
           </Field>
         </Section>
 

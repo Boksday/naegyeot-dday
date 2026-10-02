@@ -9,6 +9,8 @@ function makeDday(overrides: Partial<Dday>): Dday {
     categoryId: 'personal',
     repeatYearly: false,
     showMilestones: false,
+    calendar: 'solar',
+    lunar: null,
     order: 0,
     notifyOnDay: true,
     notifyDaysBefore: null,

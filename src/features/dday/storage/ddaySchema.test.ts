@@ -16,6 +16,8 @@ const ITEM: Dday = {
   repeatYearly: true,
   showMilestones: false,
   order: 0,
+  calendar: 'solar',
+  lunar: null,
   notifyOnDay: true,
   notifyDaysBefore: 3,
   createdAt: '2026-10-01T00:00:00.000Z',
@@ -23,7 +25,7 @@ const ITEM: Dday = {
 };
 
 function current(data: { categories?: unknown[]; items?: unknown[] }) {
-  return JSON.stringify({ version: 5, categories: [CATEGORY], items: [ITEM], ...data });
+  return JSON.stringify({ version: 6, categories: [CATEGORY], items: [ITEM], ...data });
 }
 
 describe('parseStoredData', () => {
@@ -78,12 +80,34 @@ describe('parseStoredData', () => {
   });
 
   it('더 새로운 버전의 데이터는 덮어쓰지 않도록 실패한다', () => {
-    const raw = JSON.stringify({ version: 6, categories: [], items: [] });
+    const raw = JSON.stringify({ version: 7, categories: [], items: [] });
     expect(parseStoredData(raw)).toEqual({ ok: false, reason: 'unsupported-version' });
   });
 
+  it('버전 5 기록은 모두 양력 디데이로 옮긴다', () => {
+    const { calendar: _calendar, lunar: _lunar, ...v5Item } = ITEM;
+    const raw = JSON.stringify({ version: 5, categories: [CATEGORY], items: [v5Item] });
+    expect(parseStoredData(raw)).toEqual({ ok: true, categories: [CATEGORY], items: [ITEM] });
+  });
+
+  it('음력 디데이는 음력 날짜가 있어야 한다', () => {
+    expect(
+      parseStoredData(current({ items: [{ ...ITEM, calendar: 'lunar', lunar: null }] })),
+    ).toEqual({
+      ok: false,
+      reason: 'invalid-data',
+    });
+    const lunar = { year: 1990, month: 3, day: 5, isLeapMonth: false };
+    const lunarItem = { ...ITEM, calendar: 'lunar', lunar };
+    expect(parseStoredData(current({ items: [lunarItem] }))).toEqual({
+      ok: true,
+      categories: [CATEGORY],
+      items: [lunarItem],
+    });
+  });
+
   it('버전 4 기록은 저장된 순서대로 직접 정렬 순서를 매긴다', () => {
-    const { order: _order, ...v4Item } = ITEM;
+    const { order: _order, calendar: _calendar, lunar: _lunar, ...v4Item } = ITEM;
     const raw = JSON.stringify({
       version: 4,
       categories: [CATEGORY],
@@ -93,19 +117,25 @@ describe('parseStoredData', () => {
       ok: true,
       categories: [CATEGORY],
       items: [
-        { ...v4Item, order: 0 },
-        { ...v4Item, id: 'b', order: 1 },
+        { ...v4Item, order: 0, calendar: 'solar', lunar: null },
+        { ...v4Item, id: 'b', order: 1, calendar: 'solar', lunar: null },
       ],
     });
   });
 
   it('버전 3 기록은 100일 기념일을 켠 상태로 옮긴다', () => {
-    const { showMilestones: _showMilestones, order: _order, ...v3Item } = ITEM;
+    const {
+      showMilestones: _showMilestones,
+      order: _order,
+      calendar: _calendar,
+      lunar: _lunar,
+      ...v3Item
+    } = ITEM;
     const raw = JSON.stringify({ version: 3, categories: [CATEGORY], items: [v3Item] });
     expect(parseStoredData(raw)).toEqual({
       ok: true,
       categories: [CATEGORY],
-      items: [{ ...v3Item, showMilestones: true, order: 0 }],
+      items: [{ ...v3Item, showMilestones: true, order: 0, calendar: 'solar', lunar: null }],
     });
   });
 
@@ -120,7 +150,16 @@ describe('parseStoredData', () => {
     expect(parseStoredData(raw)).toEqual({
       ok: true,
       categories: DEFAULT_CATEGORIES,
-      items: [{ ...base, categoryId: 'couple', showMilestones: true, order: 0 }],
+      items: [
+        {
+          ...base,
+          categoryId: 'couple',
+          showMilestones: true,
+          order: 0,
+          calendar: 'solar',
+          lunar: null,
+        },
+      ],
     });
   });
 
@@ -135,7 +174,16 @@ describe('parseStoredData', () => {
     expect(parseStoredData(raw)).toEqual({
       ok: true,
       categories: DEFAULT_CATEGORIES,
-      items: [{ ...v1Item, categoryId: 'personal', showMilestones: true, order: 0 }],
+      items: [
+        {
+          ...v1Item,
+          categoryId: 'personal',
+          showMilestones: true,
+          order: 0,
+          calendar: 'solar',
+          lunar: null,
+        },
+      ],
     });
   });
 });

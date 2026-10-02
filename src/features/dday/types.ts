@@ -1,10 +1,14 @@
 import type { CategoryColorKey } from '../../theme/tokens';
 import type { LocalDate } from './logic/dates';
+import type { LunarDate } from './logic/lunar';
 
 export const NOTIFY_DAYS_BEFORE_OPTIONS = [1, 3, 7] as const;
 export type NotifyDaysBefore = (typeof NOTIFY_DAYS_BEFORE_OPTIONS)[number];
 
 export const MAX_TITLE_LENGTH = 30;
+
+export const DDAY_CALENDARS = ['solar', 'lunar'] as const;
+export type DdayCalendar = (typeof DDAY_CALENDARS)[number];
 
 export const MAX_CATEGORY_NAME_LENGTH = 10;
 /** 칩 한 줄이 감당할 수 있는 정도로 제한한다. */
@@ -30,8 +34,11 @@ export type Dday = {
   id: string;
   title: string;
   categoryId: string;
-  /** 기준 날짜. 매년 반복이면 월·일만 반복에 쓰이고, 연도는 지난 일수 계산에 쓰인다. */
+  /** 기준 날짜(양력). 음력 디데이는 음력 기준 날짜를 양력으로 바꾼 값이다. 지난 일수 계산에 쓰인다. */
   date: LocalDate;
+  calendar: DdayCalendar;
+  /** 음력 디데이의 음력 기준 날짜. 매년 반복은 이 월·일로 해마다 날짜를 다시 구한다. 양력이면 null. */
+  lunar: LunarDate | null;
   repeatYearly: boolean;
   /** 기준일부터 100일·200일… 기념일을 보여줄지 */
   showMilestones: boolean;
@@ -48,6 +55,8 @@ export type DdayInput = Pick<
   | 'title'
   | 'categoryId'
   | 'date'
+  | 'calendar'
+  | 'lunar'
   | 'repeatYearly'
   | 'showMilestones'
   | 'notifyOnDay'

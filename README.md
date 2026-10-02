@@ -28,7 +28,7 @@ npm run verify        # 타입 검사 → 린트 → 포맷 검사 → 테스트
 npm run android       # 네이티브 프로젝트 생성 후 에뮬레이터/기기에 설치·실행
 npm start             # 이미 설치한 개발 빌드에 붙을 Metro 서버
 npm run prebuild      # android/ios 디렉터리 재생성
-npm run build:android:release  # 운영용 APK (서명 키 필요, docs/release.md)
+npm run build:android:release  # 운영용 APK (JAVA_HOME 필요, 서명 키 필요, docs/release.md)
 ```
 
 로컬 Android 빌드만 확인하려면:

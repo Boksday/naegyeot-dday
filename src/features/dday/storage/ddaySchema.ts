@@ -18,8 +18,9 @@ import {
  * - 3: 분류를 사용자가 관리. categories 목록 추가, 항목은 categoryId로 참조한다.
  * - 4: 100일 단위 기념일을 디데이별 선택(showMilestones)으로. 이전 항목은 늘 보였으므로 true.
  * - 5: 직접 정렬 순서(order). 이전 항목은 추가한 순서대로 매긴다.
+ * - 6: 양력/음력(calendar, lunar). 이전 항목은 모두 양력이다.
  */
-export const CURRENT_SCHEMA_VERSION = 5;
+export const CURRENT_SCHEMA_VERSION = 6;
 
 /** 버전 1 기록을 옮길 분류. 버전 2의 기본값과 같다. */
 const V1_DEFAULT_CATEGORY_ID = 'personal';
@@ -56,6 +57,23 @@ export function isCategory(value: unknown): value is Category {
   );
 }
 
+function isLunarDate(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  const { year, month, day, isLeapMonth } = value;
+  return (
+    Number.isInteger(year) &&
+    Number.isInteger(month) &&
+    typeof month === 'number' &&
+    month >= 1 &&
+    month <= 12 &&
+    Number.isInteger(day) &&
+    typeof day === 'number' &&
+    day >= 1 &&
+    day <= 30 &&
+    typeof isLeapMonth === 'boolean'
+  );
+}
+
 export function isDday(value: unknown): value is Dday {
   if (!isRecord(value)) return false;
   const {
@@ -66,6 +84,8 @@ export function isDday(value: unknown): value is Dday {
     repeatYearly,
     showMilestones,
     order,
+    calendar,
+    lunar,
     notifyOnDay,
     notifyDaysBefore,
     createdAt,
@@ -84,6 +104,7 @@ export function isDday(value: unknown): value is Dday {
     typeof showMilestones === 'boolean' &&
     typeof order === 'number' &&
     Number.isFinite(order) &&
+    (calendar === 'solar' ? lunar === null : calendar === 'lunar' && isLunarDate(lunar)) &&
     typeof notifyOnDay === 'boolean' &&
     (notifyDaysBefore === null || isNotifyDaysBefore(notifyDaysBefore)) &&
     typeof createdAt === 'string' &&
@@ -126,6 +147,13 @@ function migrate(data: Record<string, unknown>): { categories: unknown; items: u
     if (!Array.isArray(items)) return null;
     items = items.map((item, index) => (isRecord(item) ? { ...item, order: index } : item));
     version = 5;
+  }
+  if (version === 5) {
+    if (!Array.isArray(items)) return null;
+    items = items.map((item) =>
+      isRecord(item) ? { ...item, calendar: 'solar', lunar: null } : item,
+    );
+    version = 6;
   }
   if (version !== CURRENT_SCHEMA_VERSION) return null;
   return { categories, items };

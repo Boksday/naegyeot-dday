@@ -11,6 +11,8 @@ function makeDday(id: string, overrides: Partial<Dday> = {}): Dday {
     date: TODAY,
     repeatYearly: false,
     showMilestones: false,
+    calendar: 'solar',
+    lunar: null,
     order: 0,
     notifyOnDay: false,
     notifyDaysBefore: null,

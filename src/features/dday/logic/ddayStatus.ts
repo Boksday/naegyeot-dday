@@ -1,30 +1,43 @@
 import type { Dday } from '../types';
 import { daysBetween, getYear, type LocalDate, sameDayInYear } from './dates';
+import { lunarToSolarForYear } from './lunar';
+
+type Schedulable = Pick<Dday, 'date' | 'repeatYearly' | 'calendar' | 'lunar'>;
+
+/** 매년 반복 디데이가 그해에 돌아오는 양력 날짜. 음력이면 그해 음력 날짜를 양력으로 바꾼다. */
+function occurrenceInYear(item: Schedulable, year: number): LocalDate | null {
+  if (item.calendar === 'lunar' && item.lunar) return lunarToSolarForYear(item.lunar, year);
+  return sameDayInYear(item.date, year);
+}
+
+function baseYear(item: Schedulable): number {
+  return item.calendar === 'lunar' && item.lunar ? item.lunar.year : getYear(item.date);
+}
+
+/**
+ * 오늘 이후(오늘 포함) 돌아오는 날짜들. 반복이 아니면 기준 날짜 하나만 돌려준다.
+ * 음력 연말 날짜는 이듬해 양력에 오므로 음력은 한 해 앞에서부터 찾는다.
+ */
+export function getOccurrences(item: Schedulable, today: LocalDate, count: number): LocalDate[] {
+  if (!item.repeatYearly) return [item.date];
+  const firstCandidateYear = item.calendar === 'lunar' ? getYear(today) - 1 : getYear(today);
+  const startYear = Math.max(baseYear(item), firstCandidateYear);
+  const occurrences: LocalDate[] = [];
+  for (let year = startYear; occurrences.length < count && year <= startYear + count + 2; year++) {
+    const date = occurrenceInYear(item, year);
+    if (date && daysBetween(today, date) >= 0) occurrences.push(date);
+  }
+  return occurrences;
+}
 
 /**
  * 표시·알림 기준이 되는 날짜.
- * 매년 반복은 기준 날짜가 아직 오지 않았으면 그 날짜, 지났으면 오늘 이후 가장 가까운 같은 월·일이다.
+ * 매년 반복은 기준 날짜가 아직 오지 않았으면 그 날짜, 지났으면 오늘 이후 가장 가까운 같은 날이다.
+ * 음력 변환 범위(2050년)를 벗어나면 기준 날짜를 쓴다.
  */
-export function getTargetDate(
-  item: Pick<Dday, 'date' | 'repeatYearly'>,
-  today: LocalDate,
-): LocalDate {
-  if (!item.repeatYearly || daysBetween(today, item.date) >= 0) return item.date;
-  const thisYear = sameDayInYear(item.date, getYear(today));
-  if (daysBetween(today, thisYear) >= 0) return thisYear;
-  return sameDayInYear(item.date, getYear(today) + 1);
-}
-
-/** 기준이 되는 날짜부터 순서대로 돌아오는 날짜들. 반복이 아니면 하나만 돌려준다. */
-export function getOccurrences(
-  item: Pick<Dday, 'date' | 'repeatYearly'>,
-  today: LocalDate,
-  count: number,
-): LocalDate[] {
-  const first = getTargetDate(item, today);
-  if (!item.repeatYearly) return [first];
-  const firstYear = getYear(first);
-  return Array.from({ length: count }, (_, index) => sameDayInYear(item.date, firstYear + index));
+export function getTargetDate(item: Schedulable, today: LocalDate): LocalDate {
+  if (!item.repeatYearly) return item.date;
+  return getOccurrences(item, today, 1)[0] ?? item.date;
 }
 
 export function formatDdayLabel(daysUntil: number): string {
@@ -44,10 +57,7 @@ export type DdayStatus = {
   label: string;
 };
 
-export function getDdayStatus(
-  item: Pick<Dday, 'date' | 'repeatYearly'>,
-  today: LocalDate,
-): DdayStatus {
+export function getDdayStatus(item: Schedulable, today: LocalDate): DdayStatus {
   const targetDate = getTargetDate(item, today);
   const daysUntil = daysBetween(today, targetDate);
   return { targetDate, daysUntil, label: formatDdayLabel(daysUntil) };

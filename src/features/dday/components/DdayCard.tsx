@@ -5,6 +5,7 @@ import { fontSize, radius, spacing } from '../../../theme/tokens';
 import { type Theme, useTheme, useThemedStyles } from '../../../theme/useTheme';
 import { formatKoreanDate, type LocalDate } from '../logic/dates';
 import { formatDdayLabel, getDayCount, getDdayStatus } from '../logic/ddayStatus';
+import { formatLunarShort } from '../logic/lunar';
 import { getMilestones } from '../logic/milestones';
 import { ddayStrings } from '../strings';
 import type { Category, Dday } from '../types';
@@ -82,6 +83,7 @@ export function DdayCard({
         </View>
         <Text style={styles.meta} numberOfLines={1}>
           {formatKoreanDate(status.targetDate)}
+          {item.lunar ? ` · ${formatLunarShort(item.lunar)}` : ''}
           {item.repeatYearly ? ` · ${ddayStrings.repeatBadge}` : ''}
         </Text>
         {dayCount !== null && <Text style={styles.meta}>{ddayStrings.dayCount(dayCount)}</Text>}

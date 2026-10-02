@@ -17,6 +17,8 @@ function makeDday(overrides: Partial<Dday>): Dday {
     categoryId: 'personal',
     repeatYearly: false,
     showMilestones: false,
+    calendar: 'solar',
+    lunar: null,
     order: 0,
     notifyOnDay: false,
     notifyDaysBefore: null,
@@ -97,5 +99,31 @@ describe('sortForDisplay', () => {
       'past-recent',
       'past-old',
     ]);
+  });
+});
+
+describe('음력 매년 반복', () => {
+  const lunarBirthday = makeDday({
+    date: '1990-03-31',
+    calendar: 'lunar',
+    lunar: { year: 1990, month: 3, day: 5, isLeapMonth: false },
+    repeatYearly: true,
+  });
+
+  it('해마다 음력 날짜를 양력으로 바꿔 다가오는 날을 찾는다', () => {
+    // 2027년 음력 3월 5일 = 양력 2027-04-11
+    expect(getDdayStatus(lunarBirthday, TODAY).targetDate).toBe('2027-04-11');
+    expect(getOccurrences(lunarBirthday, TODAY, 2)).toEqual(['2027-04-11', '2028-03-30']);
+  });
+
+  it('음력 연말 날짜는 이듬해 양력에 온다', () => {
+    const yearEnd = makeDday({
+      date: '1990-01-20',
+      calendar: 'lunar',
+      lunar: { year: 1989, month: 12, day: 24, isLeapMonth: false },
+      repeatYearly: true,
+    });
+    // 2026년 음력 12월 24일 = 양력 2027-01-31
+    expect(getDdayStatus(yearEnd, TODAY).targetDate).toBe('2027-01-31');
   });
 });

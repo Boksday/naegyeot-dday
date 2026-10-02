@@ -14,6 +14,7 @@ import { useToday } from '../hooks/useToday';
 import { findCategory } from '../logic/categories';
 import { formatKoreanDate } from '../logic/dates';
 import { formatDdayLabel, getDayCount, getDdayStatus } from '../logic/ddayStatus';
+import { formatLunarDate } from '../logic/lunar';
 import { getMilestones, type Milestone } from '../logic/milestones';
 import { ddayStrings } from '../strings';
 import { type Dday, hasNotification } from '../types';
@@ -93,7 +94,14 @@ export function DdayDetailScreen({ id }: { id: string }) {
         </View>
 
         <Card style={styles.section}>
-          <InfoRow label={ddayStrings.baseDate} value={formatKoreanDate(item.date)} />
+          <InfoRow
+            label={ddayStrings.baseDate}
+            value={
+              item.lunar
+                ? `${formatLunarDate(item.lunar, true)}\n${ddayStrings.solarEquivalent(formatKoreanDate(item.date))}`
+                : formatKoreanDate(item.date)
+            }
+          />
           {item.repeatYearly && (
             <InfoRow label={ddayStrings.targetDate} value={formatKoreanDate(status.targetDate)} />
           )}
