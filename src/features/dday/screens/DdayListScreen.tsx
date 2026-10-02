@@ -256,7 +256,7 @@ function ReorderableCard({ onMove, ...props }: ReorderableCardProps) {
       onMove={onMove}
       onLongPress={drag}
       isActive={isActive}
-      leading={<DragHandle onDragStart={drag} />}
+      corner={<DragHandle onDragStart={drag} />}
     />
   );
 }

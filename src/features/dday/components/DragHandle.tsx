@@ -1,17 +1,19 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { spacing } from '../../../theme/tokens';
 import { type Theme, useThemedStyles } from '../../../theme/useTheme';
 
-const BAR_WIDTH = 11;
-const BAR_HEIGHT = 2;
-const BAR_GAP = 2.5;
-const BAR_COUNT = 3;
+const GRABBER_WIDTH = 22;
+const GRABBER_HEIGHT = 4;
 /** 내용보다 튀지 않도록 연하게 둔다. */
-const HANDLE_OPACITY = 0.25;
-/** 보이는 폭은 좁게, 누르는 영역은 바깥 여백으로 넓힌다. */
-const HIT_SLOP = { top: 16, bottom: 16, left: 16, right: 10 };
+const GRABBER_OPACITY = 0.22;
+/** 보이는 막대는 작게, 누르는 영역은 바깥 여백으로 넓힌다. */
+const HIT_SLOP = { top: 12, bottom: 14, left: 14, right: 14 };
 
-/** 직접 정렬 손잡이(≡). 누르는 즉시 끌기를 시작한다. */
+/**
+ * 직접 정렬 손잡이. 카드 왼쪽 위 모서리에 작은 막대로 떠 있다.
+ * 누르는 즉시 끌기를 시작한다.
+ */
 export function DragHandle({ onDragStart }: { onDragStart: () => void }) {
   const styles = useThemedStyles(createStyles);
   return (
@@ -23,9 +25,7 @@ export function DragHandle({ onDragStart }: { onDragStart: () => void }) {
       importantForAccessibility="no-hide-descendants"
       style={styles.handle}
     >
-      {Array.from({ length: BAR_COUNT }, (_, index) => (
-        <View key={index} style={styles.bar} />
-      ))}
+      <View style={styles.grabber} />
     </Pressable>
   );
 }
@@ -33,17 +33,16 @@ export function DragHandle({ onDragStart }: { onDragStart: () => void }) {
 const createStyles = ({ colors }: Theme) =>
   StyleSheet.create({
     handle: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: BAR_GAP,
-      opacity: HANDLE_OPACITY,
-      // 카드 안쪽 간격보다 손잡이와 내용 사이를 좁혀 보이게 한다.
-      marginRight: -4,
+      position: 'absolute',
+      top: 6,
+      left: spacing.lg,
+      paddingVertical: 2,
     },
-    bar: {
-      width: BAR_WIDTH,
-      height: BAR_HEIGHT,
-      borderRadius: BAR_HEIGHT / 2,
+    grabber: {
+      width: GRABBER_WIDTH,
+      height: GRABBER_HEIGHT,
+      borderRadius: GRABBER_HEIGHT / 2,
       backgroundColor: colors.text,
+      opacity: GRABBER_OPACITY,
     },
   });

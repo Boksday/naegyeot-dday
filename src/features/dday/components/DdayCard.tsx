@@ -19,8 +19,8 @@ type DdayCardProps = {
   onLongPress?: () => void;
   /** 직접 정렬에서 화면 읽기 사용자를 위한 한 칸 이동 */
   onMove?: (id: string, delta: -1 | 1) => void;
-  /** 카드 왼쪽에 둘 요소(직접 정렬 손잡이) */
-  leading?: ReactNode;
+  /** 카드 왼쪽 위 모서리에 띄울 요소(직접 정렬 손잡이). 내용 배치에는 영향이 없다. */
+  corner?: ReactNode;
   /** 끌고 있는 카드 강조 */
   isActive?: boolean;
 };
@@ -32,7 +32,7 @@ export function DdayCard({
   onPress,
   onLongPress,
   onMove,
-  leading,
+  corner,
   isActive = false,
 }: DdayCardProps) {
   const styles = useThemedStyles(createStyles);
@@ -68,12 +68,11 @@ export function DdayCard({
       }}
       style={({ pressed }) => [
         styles.card,
-        leading !== undefined && styles.cardWithLeading,
         isActive && styles.active,
         pressed && !isActive && styles.pressed,
       ]}
     >
-      {leading}
+      {corner}
       <View style={styles.info}>
         <View style={styles.titleRow}>
           <CategoryDot color={color} size={12} />
@@ -126,9 +125,6 @@ const createStyles = ({ colors, shadow }: Theme) =>
       padding: spacing.lg,
       gap: spacing.md,
       ...shadow,
-    },
-    cardWithLeading: {
-      paddingLeft: spacing.md,
     },
     active: {
       borderWidth: 2,
