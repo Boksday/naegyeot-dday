@@ -9,7 +9,6 @@ import ReorderableList, {
 } from 'react-native-reorderable-list';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AD_BANNER_HEIGHT, AdBannerSlot } from '../../../components/AdBannerSlot';
 import { AssetPlaceholder } from '../../../components/AssetPlaceholder';
 import { Icon } from '../../../components/Icon';
 import { PrimaryButton } from '../../../components/PrimaryButton';
@@ -28,6 +27,7 @@ import { useSortMode } from '../hooks/useSortMode';
 import { useToday } from '../hooks/useToday';
 import { formatKoreanDate } from '../logic/dates';
 import { sortDdays } from '../logic/sorting';
+import { AdBanner } from '../../ads/AdBanner';
 import { settingsStrings } from '../../settings/strings';
 import { ddayStrings } from '../strings';
 import type { Category, Dday } from '../types';
@@ -187,46 +187,47 @@ export function DdayListScreen() {
 
   return (
     <View style={styles.container}>
-      <ReorderableList
-        data={visible}
-        keyExtractor={(item) => item.id}
-        onReorder={handleReorder}
-        dragEnabled={isManual}
-        shouldUpdateActiveItem
-        renderItem={({ item }) => (
-          <ReorderableCard
-            item={item}
-            category={categoryById.get(item.categoryId)}
-            today={today}
-            onPress={openDetail}
-            onMove={isManual ? moveByOne : undefined}
-          />
-        )}
-        contentContainerStyle={[
-          styles.list,
-          { paddingTop: insets.top + spacing.lg, paddingBottom: FAB_SIZE + 48 },
-        ]}
-        ItemSeparatorComponent={Separator}
-        ListHeaderComponent={header}
-        ListEmptyComponent={empty}
-      />
-      {items.length > 0 && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={ddayStrings.addTitle}
-          onPress={openNew}
-          style={({ pressed }) => [
-            styles.fab,
-            { bottom: insets.bottom + AD_BANNER_HEIGHT + spacing.xl },
-            pressed && styles.fabPressed,
+      {/* + 버튼이 하단 광고 높이와 상관없이 목록 영역 아래에 붙도록 감싼다. */}
+      <View style={styles.listArea}>
+        <ReorderableList
+          data={visible}
+          keyExtractor={(item) => item.id}
+          onReorder={handleReorder}
+          dragEnabled={isManual}
+          shouldUpdateActiveItem
+          renderItem={({ item }) => (
+            <ReorderableCard
+              item={item}
+              category={categoryById.get(item.categoryId)}
+              today={today}
+              onPress={openDetail}
+              onMove={isManual ? moveByOne : undefined}
+            />
+          )}
+          contentContainerStyle={[
+            styles.list,
+            { paddingTop: insets.top + spacing.lg, paddingBottom: FAB_SIZE + 48 },
           ]}
-        >
-          <Text style={styles.fabText}>+</Text>
-        </Pressable>
-      )}
-      <View style={{ paddingBottom: insets.bottom }}>
-        <AdBannerSlot label={ddayStrings.adBanner} />
+          ItemSeparatorComponent={Separator}
+          ListHeaderComponent={header}
+          ListEmptyComponent={empty}
+        />
+        {items.length > 0 && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={ddayStrings.addTitle}
+            onPress={openNew}
+            style={({ pressed }) => [
+              styles.fab,
+              { bottom: spacing.xl },
+              pressed && styles.fabPressed,
+            ]}
+          >
+            <Text style={styles.fabText}>+</Text>
+          </Pressable>
+        )}
       </View>
+      <AdBanner />
       <SortSheet
         visible={isSortSheetOpen}
         value={sortMode}
@@ -281,6 +282,9 @@ const createStyles = ({ colors, shadow }: Theme) =>
     },
     padded: {
       padding: spacing.xl,
+    },
+    listArea: {
+      flex: 1,
     },
     list: {
       paddingHorizontal: spacing.lg,

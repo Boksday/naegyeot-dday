@@ -12,6 +12,8 @@ export const settingsStrings = {
   themeSystemHint: '휴대폰의 라이트·다크 설정에 맞춰 자동으로 바뀌어요.',
   categorySection: '분류',
   manageCategories: '분류 관리',
+  privacySection: '개인정보',
+  adPrivacyOptions: '광고 개인정보 설정',
   saveFailed: '설정을 저장하지 못했어요',
   devSection: '개발용 (개발 빌드에서만 보임)',
   devTestNotification: '10초 뒤 테스트 알림',

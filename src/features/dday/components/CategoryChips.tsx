@@ -1,4 +1,7 @@
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
+// 목록의 끌기 제스처(react-native-reorderable-list)가 가로 밀기를 가로채지 않도록
+// 제스처 시스템과 함께 동작하는 ScrollView를 쓴다.
+import { ScrollView } from 'react-native-gesture-handler';
 
 import { fontSize, MIN_TOUCH_SIZE, radius, spacing } from '../../../theme/tokens';
 import { type Theme, useThemedStyles } from '../../../theme/useTheme';

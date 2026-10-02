@@ -70,3 +70,10 @@
 - 위젯은 앱의 화면 모드 설정(시스템·라이트·다크)을 따른다. 설정을 바꾸면 위젯도 바로 다시 그린다.
 - 위젯 목록은 목록 정렬 설정과 무관하게 가까운 순 3개다. 가장 가까운 날을 보여주는 것이 위젯의 쓸모라서다.
 - 위젯 고르기 화면 미리보기는 실제 사용자 데이터가 아닌 예시 데이터로 만든 고정 이미지다.
+
+## 2026-10-02 광고 연결
+
+- AdMob 배너, `react-native-google-mobile-ads` 17.2. 동의(UMP) 확인 후에만 SDK 초기화.
+- 광고 ID는 `.env`로 주입하고 커밋하지 않는다. 운영 빌드에 실제 배너 ID가 없으면 광고를 띄우지 않는다(테스트 광고가 사용자에게 나가는 것을 막는다).
+- 라이브러리 17.2의 Android build.gradle 버그(app.json에 전용 키가 없으면 실패)를 `RNGMA_ANDROID_BACKEND=classic` Gradle 속성으로 우회한다(`plugins/withGradleProperties.js`). 라이브러리 업데이트 때 다시 확인한다.
+- 분류 칩 줄은 `react-native-gesture-handler`의 ScrollView를 쓴다. 기본 ScrollView는 직접 정렬 목록의 제스처에 가로 밀기를 빼앗긴다.

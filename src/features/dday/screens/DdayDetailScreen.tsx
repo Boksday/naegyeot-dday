@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
+
+import { AdBanner } from '../../ads/AdBanner';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AdBannerSlot } from '../../../components/AdBannerSlot';
 import { Card } from '../../../components/Card';
 import { PrimaryButton } from '../../../components/PrimaryButton';
 import { fontSize, radius, spacing } from '../../../theme/tokens';
@@ -31,7 +31,6 @@ export function DdayDetailScreen({ id }: { id: string }) {
   const styles = useThemedStyles(createStyles);
   const { colors, categoryPalette } = useTheme();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const today = useToday();
   const { items, categories, removeDday } = useDdayStore();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -147,9 +146,7 @@ export function DdayDetailScreen({ id }: { id: string }) {
         </View>
       </ScrollView>
       {/* 목록 화면과 같이 하단 고정. 버튼과는 content의 아래 여백만큼 떨어진다. */}
-      <View style={{ paddingBottom: insets.bottom }}>
-        <AdBannerSlot label={ddayStrings.adBanner} />
-      </View>
+      <AdBanner />
     </View>
   );
 }

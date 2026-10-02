@@ -40,7 +40,6 @@ export const ddayStrings = {
   categoryDeleteEmpty: '이 분류에는 디데이가 없어요.',
   categoryDeleteLast: '분류는 하나 이상 있어야 해요.',
   categoryListTitle: '내 분류',
-  adBanner: '광고 배너 영역',
   sortTitle: '정렬',
   sortLabels: {
     upcoming: '가까운 순',

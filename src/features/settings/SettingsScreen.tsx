@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '../../components/Card';
+import { useAds } from '../ads/AdsProvider';
 import {
   getScheduledSummaries,
   type ScheduledSummary,
@@ -24,6 +25,7 @@ import {
 export function SettingsScreen() {
   const styles = useThemedStyles(createStyles);
   const router = useRouter();
+  const { isPrivacyOptionsRequired, showPrivacyOptions } = useAds();
   const [preference, setPreference] = useState<ThemePreference | null>(null);
 
   useEffect(() => {
@@ -102,6 +104,29 @@ export function SettingsScreen() {
           </Pressable>
         </Card>
       </View>
+
+      {isPrivacyOptionsRequired && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{settingsStrings.privacySection}</Text>
+          <Card style={styles.list}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                showPrivacyOptions().catch((error: unknown) => {
+                  Alert.alert(
+                    settingsStrings.saveFailed,
+                    error instanceof Error ? error.message : String(error),
+                  );
+                });
+              }}
+              style={styles.row}
+            >
+              <Text style={styles.rowLabel}>{settingsStrings.adPrivacyOptions}</Text>
+              <Text style={styles.chevron}>›</Text>
+            </Pressable>
+          </Card>
+        </View>
+      )}
 
       {__DEV__ && <DevNotificationTools />}
     </ScrollView>

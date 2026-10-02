@@ -17,7 +17,7 @@ npm run build:android:release   # 직접 설치용 APK: android/app/build/output
 npm run build:android:bundle    # Play 업로드용 AAB: android/app/build/outputs/bundle/release/app-release.aab
 ```
 
-- Gradle 메모리 한도는 `plugins/withGradleMemory.js`가 설정한다(기본값으로는 Kotlin 컴파일이 Metaspace 부족으로 실패했다).
+- Gradle 메모리 한도는 `plugins/withGradleProperties.js`가 설정한다(기본값으로는 Kotlin 컴파일이 Metaspace 부족으로 실패했다).
 - 서명 확인: `apksigner verify --print-certs <apk>`의 SHA-256이 위 지문과 같아야 한다.
 
 ## 버전
