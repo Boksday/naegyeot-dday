@@ -4,6 +4,8 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 
 import { Card } from '../../components/Card';
 import { useAds } from '../ads/AdsProvider';
+import { usePro } from '../pro/ProProvider';
+import { PrimaryButton } from '../../components/PrimaryButton';
 import {
   getScheduledSummaries,
   type ScheduledSummary,
@@ -65,6 +67,8 @@ export function SettingsScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
+      <ProSection />
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{settingsStrings.themeSection}</Text>
         <Card style={styles.list}>
@@ -130,6 +134,57 @@ export function SettingsScreen() {
 
       {__DEV__ && <DevNotificationTools />}
     </ScrollView>
+  );
+}
+
+function ProSection() {
+  const styles = useThemedStyles(createStyles);
+  const { isPro, storeStatus, displayPrice, isPurchasing, purchaseError, buy, restore } = usePro();
+
+  const restorePurchases = () => {
+    restore()
+      .then((restored) =>
+        Alert.alert(restored ? settingsStrings.proRestored : settingsStrings.proNothingToRestore),
+      )
+      .catch((error: unknown) => {
+        Alert.alert(
+          settingsStrings.proFailed,
+          error instanceof Error ? error.message : String(error),
+        );
+      });
+  };
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{settingsStrings.proSection}</Text>
+      <Card style={styles.proCard}>
+        {isPro ? (
+          <Text style={styles.rowLabel}>{settingsStrings.proActive}</Text>
+        ) : (
+          <>
+            <Text style={styles.proTitle}>{settingsStrings.proTitle}</Text>
+            <Text style={styles.hint}>{settingsStrings.proBody}</Text>
+            {storeStatus === 'ready' && displayPrice ? (
+              <PrimaryButton
+                label={
+                  isPurchasing ? settingsStrings.proBuying : settingsStrings.proBuy(displayPrice)
+                }
+                onPress={() => void buy()}
+                disabled={isPurchasing}
+              />
+            ) : (
+              <Text style={styles.hint}>
+                {storeStatus === 'connecting' ? '…' : settingsStrings.proUnavailable}
+              </Text>
+            )}
+            {purchaseError && <Text style={styles.error}>{purchaseError}</Text>}
+            <Pressable accessibilityRole="button" onPress={restorePurchases} style={styles.linkRow}>
+              <Text style={styles.link}>{settingsStrings.proRestore}</Text>
+            </Pressable>
+          </>
+        )}
+      </Card>
+    </View>
   );
 }
 
@@ -259,6 +314,28 @@ const createStyles = ({ colors }: Theme) =>
     devList: {
       paddingBottom: spacing.md,
       gap: spacing.xs,
+    },
+    proCard: {
+      gap: spacing.md,
+    },
+    proTitle: {
+      fontSize: fontSize.title,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    error: {
+      fontSize: fontSize.caption,
+      color: colors.danger,
+    },
+    linkRow: {
+      minHeight: MIN_TOUCH_SIZE - 8,
+      justifyContent: 'center',
+      alignSelf: 'center',
+    },
+    link: {
+      fontSize: fontSize.caption,
+      color: colors.textMuted,
+      textDecorationLine: 'underline',
     },
     chevron: {
       fontSize: fontSize.headline,

@@ -135,6 +135,11 @@ export function DdayDetailScreen({ id }: { id: string }) {
           </Card>
         )}
 
+        <PrimaryButton
+          label={ddayStrings.share}
+          onPress={() => router.push({ pathname: '/share/[id]', params: { id: item.id } })}
+        />
+
         <View style={styles.actions}>
           <View style={styles.actionItem}>
             <PrimaryButton

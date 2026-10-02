@@ -4,6 +4,7 @@ import mobileAds, {
   AdsConsentPrivacyOptionsRequirementStatus,
 } from 'react-native-google-mobile-ads';
 
+import { usePro } from '../pro/ProProvider';
 import { getBannerUnitId, getTestDeviceIds } from './adsConfig';
 
 type AdsState = {
@@ -20,7 +21,10 @@ type AdsState = {
 const AdsContext = createContext<AdsState | null>(null);
 
 export function AdsProvider({ children }: { children: ReactNode }) {
-  const [bannerUnitId] = useState(getBannerUnitId);
+  const { isPro } = usePro();
+  const [configuredUnitId] = useState(getBannerUnitId);
+  // Pro 구매자에게는 광고를 띄우지 않고 동의 창도 열지 않는다.
+  const bannerUnitId = isPro ? null : configuredUnitId;
   const [canShowAds, setCanShowAds] = useState(false);
   const [isPrivacyOptionsRequired, setIsPrivacyOptionsRequired] = useState(false);
   const [isPersonalizedAllowed, setIsPersonalizedAllowed] = useState(false);
