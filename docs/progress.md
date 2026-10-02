@@ -32,10 +32,10 @@
    - 위젯 추가, 저장 후 즉시 갱신, 자정 이후 갱신
    - 앱 재실행 후 기록 유지
 3. 광고(AdMob 후보) 호환성 확인 후 연결
-4. 출시 전: 불필요한 권한 정리(`READ/WRITE_EXTERNAL_STORAGE`, `SYSTEM_ALERT_WINDOW` 등 템플릿·디버그 기본값 확인 후 `android.blockedPermissions`), 앱 아이콘·스플래시 교체
+4. 출시 전: 불필요한 권한 정리(`READ/WRITE_EXTERNAL_STORAGE`, `SYSTEM_ALERT_WINDOW` 등 템플릿·디버그 기본값 확인 후 `android.blockedPermissions`), 스플래시 실기기 확인
 
 ## 알려진 제약
 
 - iOS 홈 위젯 없음 (WidgetKit 별도 구현 필요)
 - 날짜가 바뀐 뒤 위젯 갱신은 최대 1시간 늦을 수 있음
-- 앱 아이콘·스플래시는 Expo 기본 이미지, 화면 아이콘은 X 상자 자리 표시
+- 앱 아이콘·로고 적용. 빈 화면 일러스트·달력 아이콘은 X 상자 자리 표시, 스플래시는 '내곁의' 로고
