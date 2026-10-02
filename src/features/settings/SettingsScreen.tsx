@@ -8,6 +8,8 @@ import {
   type ScheduledSummary,
   scheduleTestNotification,
 } from '../dday/notifications/notificationScheduler';
+import { pinWidget } from '../widget/pinWidget';
+import { refreshWidget } from '../widget/refreshWidget';
 import { fontSize, MIN_TOUCH_SIZE, spacing } from '../../theme/tokens';
 import { type Theme, useThemedStyles } from '../../theme/useTheme';
 import { settingsStrings } from './strings';
@@ -42,16 +44,21 @@ export function SettingsScreen() {
     const previous = preference;
     setPreference(next);
     applyThemePreference(next);
-    saveThemePreference(next).catch((error: unknown) => {
-      if (previous) {
-        setPreference(previous);
-        applyThemePreference(previous);
-      }
-      Alert.alert(
-        settingsStrings.saveFailed,
-        error instanceof Error ? error.message : String(error),
-      );
-    });
+    saveThemePreference(next)
+      .then(() =>
+        // 위젯도 같은 화면 모드로 다시 그린다. 실패해도 설정 저장은 유지한다.
+        refreshWidget().catch((error: unknown) => console.warn('위젯 갱신 실패', error)),
+      )
+      .catch((error: unknown) => {
+        if (previous) {
+          setPreference(previous);
+          applyThemePreference(previous);
+        }
+        Alert.alert(
+          settingsStrings.saveFailed,
+          error instanceof Error ? error.message : String(error),
+        );
+      });
   };
 
   return (
@@ -106,6 +113,7 @@ const TEST_NOTIFICATION_DELAY_SECONDS = 10;
 /** 알림 전달·예약을 기기에서 확인하기 위한 개발 빌드 전용 도구 */
 function DevNotificationTools() {
   const styles = useThemedStyles(createStyles);
+  const router = useRouter();
   const [scheduled, setScheduled] = useState<ScheduledSummary[] | null>(null);
 
   const run = (task: () => Promise<void>) => {
@@ -131,6 +139,24 @@ function DevNotificationTools() {
           style={[styles.row, styles.rowDivider]}
         >
           <Text style={styles.rowLabel}>{settingsStrings.devScheduledList}</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() =>
+            run(async () => {
+              if (!(await pinWidget())) Alert.alert(settingsStrings.devPinUnsupported);
+            })
+          }
+          style={[styles.row, styles.rowDivider]}
+        >
+          <Text style={styles.rowLabel}>{settingsStrings.devPinWidget}</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/dev-widget-preview')}
+          style={[styles.row, styles.rowDivider]}
+        >
+          <Text style={styles.rowLabel}>{settingsStrings.devWidgetPreview}</Text>
         </Pressable>
         {scheduled && (
           <View style={styles.devList}>

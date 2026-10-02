@@ -2,16 +2,17 @@
 
 ## 적용된 자산
 
-| 자산                              | 파일                                 | 쓰는 곳                                  |
-| --------------------------------- | ------------------------------------ | ---------------------------------------- |
-| 앱 아이콘 원본 (1254×1254)        | `assets/brand/app-icon-source.png`   | 아래 파일을 만드는 원본                  |
-| 앱 아이콘 (1024)                  | `assets/icon.png`                    | iOS·기본 아이콘                          |
-| Android 적응형 아이콘 전경 (1024) | `assets/android-icon-foreground.png` | 배경색 `#1F6B68`과 함께 사용             |
-| 설정 아이콘 (96, 투명)            | `assets/icons/settings.png`          | 목록 오른쪽 위 24dp, 테마 색으로 칠함    |
-| 날짜 수정 아이콘 (96, 투명)       | `assets/icons/edit-date.png`         | 입력 화면 날짜 칸 22dp, 테마 색으로 칠함 |
-| 앱 로고 (256)                     | `assets/logo.png`                    | 목록 화면 제목 왼쪽 (40dp)               |
-| 브랜드 로고 원본 (2076×757, 투명) | `assets/brand/brand-logo-source.png` | '내곁의' 워드마크 원본                   |
-| 스플래시 로고 (800 폭)            | `assets/splash-logo.png`             | 앱 시작 화면, 폭 200dp, 배경 `#FFF8F5`   |
+| 자산                                 | 파일                                 | 쓰는 곳                                                                                   |
+| ------------------------------------ | ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| 앱 아이콘 원본 (1254×1254)           | `assets/brand/app-icon-source.png`   | 아래 파일을 만드는 원본                                                                   |
+| 앱 아이콘 (1024)                     | `assets/icon.png`                    | iOS·기본 아이콘                                                                           |
+| Android 적응형 아이콘 전경 (1024)    | `assets/android-icon-foreground.png` | 배경색 `#1F6B68`과 함께 사용                                                              |
+| 설정 아이콘 (96, 투명)               | `assets/icons/settings.png`          | 목록 오른쪽 위 24dp, 테마 색으로 칠함                                                     |
+| 날짜 수정 아이콘 (96, 투명)          | `assets/icons/edit-date.png`         | 입력 화면 날짜 칸 22dp, 테마 색으로 칠함                                                  |
+| 위젯 미리보기 (640×361, 투명 모서리) | `assets/widget-preview.png`          | 위젯 고르기 화면. 개발 빌드 설정 → 위젯 미리보기 이미지 화면을 캡처해 만든다(예시 데이터) |
+| 앱 로고 (256)                        | `assets/logo.png`                    | 목록 화면 제목 왼쪽 (40dp)                                                                |
+| 브랜드 로고 원본 (2076×757, 투명)    | `assets/brand/brand-logo-source.png` | '내곁의' 워드마크 원본                                                                    |
+| 스플래시 로고 (800 폭)               | `assets/splash-logo.png`             | 앱 시작 화면, 폭 200dp, 배경 `#FFF8F5`                                                    |
 
 원본을 바꾸면 `sips -z <크기> <크기> assets/brand/app-icon-source.png --out <파일>`로 다시 만든다.
 

@@ -16,5 +16,8 @@ export const settingsStrings = {
   devSection: '개발용 (개발 빌드에서만 보임)',
   devTestNotification: '10초 뒤 테스트 알림',
   devScheduledList: '예약된 알림 보기',
+  devPinWidget: '위젯을 홈 화면에 추가',
+  devWidgetPreview: '위젯 미리보기 이미지 화면',
+  devPinUnsupported: '이 런처는 위젯 추가 요청을 지원하지 않아요.',
   devScheduledCount: (count: number) => `예약된 알림 ${count}개`,
 } as const;
