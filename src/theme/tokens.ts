@@ -9,47 +9,54 @@ export type ThemeColors = {
   surfaceMuted: HexColor;
   text: HexColor;
   textMuted: HexColor;
-  /** 버튼·강조 배경용 파스텔 코랄. 위에는 onPrimary(진한 글자)를 올린다. */
+  /** 주 버튼·스위치 등 브랜드 청록. 위에는 onPrimary를 올린다. */
   primary: HexColor;
   onPrimary: HexColor;
   primarySoft: HexColor;
   /** 파스텔 배경(분류 점 색) 위 글자. 다크에서도 진한 색이어야 읽힌다. */
   onPastel: HexColor;
-  /** 바탕 위 강조 글자용. 라이트에서 파스텔은 글자로 쓰면 대비가 부족하다. */
+  /** 바탕 위 강조 글자용 */
   primaryText: HexColor;
+  /** 보조 강조(+ 버튼 등) 브랜드 살구 */
+  accent: HexColor;
+  onAccent: HexColor;
   border: HexColor;
   danger: HexColor;
   overlay: string;
 };
 
 export const lightColors: ThemeColors = {
-  background: '#FFF8F5',
+  background: '#FCF8F3',
   surface: '#FFFFFF',
-  surfaceMuted: '#FBF1EE',
+  surfaceMuted: '#F5EFE7',
   text: '#3D2B28',
   textMuted: '#7A6661',
-  primary: '#FFB5A7',
-  onPrimary: '#3D2B28',
-  primarySoft: '#FFE5DE',
+  primary: '#1F6B68',
+  onPrimary: '#FFFFFF',
+  primarySoft: '#DCEFEA',
   onPastel: '#3D2B28',
-  primaryText: '#A8432F',
-  border: '#F0E2DD',
+  primaryText: '#1F6B68',
+  accent: '#F0AE81',
+  onAccent: '#0E4644',
+  border: '#ECE3D8',
   danger: '#B83227',
-  overlay: 'rgba(61, 43, 40, 0.4)',
+  overlay: 'rgba(30, 40, 38, 0.4)',
 };
 
 export const darkColors: ThemeColors = {
-  background: '#1B1615',
-  surface: '#28211F',
-  surfaceMuted: '#352C29',
-  text: '#F6ECE8',
-  textMuted: '#BDAEA8',
-  primary: '#FFB5A7',
-  onPrimary: '#3D2B28',
-  primarySoft: '#4A302A',
+  background: '#171918',
+  surface: '#222625',
+  surfaceMuted: '#2C3130',
+  text: '#F3EEEA',
+  textMuted: '#B5B9B6',
+  primary: '#7CC4B8',
+  onPrimary: '#0F2E2B',
+  primarySoft: '#1E3634',
   onPastel: '#3D2B28',
-  primaryText: '#FFB5A7',
-  border: '#3E3431',
+  primaryText: '#8FD6CA',
+  accent: '#F0AE81',
+  onAccent: '#3A2414',
+  border: '#363C3A',
   danger: '#FF8F85',
   overlay: 'rgba(0, 0, 0, 0.6)',
 };
