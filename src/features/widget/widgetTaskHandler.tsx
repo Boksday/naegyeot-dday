@@ -57,9 +57,15 @@ export async function renderCalendarWidget(): Promise<React.JSX.Element> {
   const events = result.ok ? getEventsInRange(result.items, first, last) : [];
   const cells = grid.map((cell) => ({
     ...cell,
-    dotColors: events
+    labels: events
       .filter((event) => event.date === cell.date)
-      .map((event) => colorById.get(event.categoryId) ?? 'gray'),
+      .map((event) => ({
+        text:
+          event.kind === 'milestone' && event.dayCount
+            ? calendarStrings.milestone(event.dayCount)
+            : event.title,
+        color: colorById.get(event.categoryId) ?? 'gray',
+      })),
   }));
   return (
     <DdayCalendarWidget

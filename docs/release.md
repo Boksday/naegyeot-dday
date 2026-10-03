@@ -55,4 +55,5 @@ adb install android/app/build/outputs/apk/release/app-release.apk
 
 - 이름 "내곁의 디데이 개발", 스킴 `naegyeotdday-dev`. 스토어 앱과 나란히 설치되고 데이터도 따로 쓴다.
 - Pro가 항상 켜져 있고 테스트 광고만 쓴다. 패키지가 달라 스토어에 올라갈 수 없다.
+- `APP_VARIANT`는 prebuild뿐 아니라 gradle 단계(JS 번들, 앱 설정 내장)까지 전달돼야 한다. 스크립트가 `export`로 넘긴다.
 - 이 빌드 뒤에 스토어용을 만들 때는 `npm run build:android:release`/`bundle`이 `prebuild --clean`으로 android/를 다시 만든다.

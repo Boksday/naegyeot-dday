@@ -5,6 +5,7 @@ export const calendarStrings = {
   today: '오늘',
   noEvents: '이날은 디데이가 없어요.',
   milestone: (dayCount: number) => `${dayCount.toLocaleString()}일`,
+  more: (count: number) => `+${count}`,
   cellLabel: (date: string, count: number) => (count > 0 ? `${date}, 디데이 ${count}개` : date),
   viewList: '목록',
   viewCalendar: '달력',

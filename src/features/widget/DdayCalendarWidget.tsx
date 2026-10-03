@@ -7,7 +7,8 @@ import { paletteFor, type WidgetTheme } from './DdayWidget';
 
 export const CALENDAR_WIDGET_NAME = 'DdayCalendarWidget';
 
-export type CalendarWidgetCell = MonthCell & { dotColors: CategoryColorKey[] };
+export type CalendarWidgetLabel = { text: string; color: CategoryColorKey };
+export type CalendarWidgetCell = MonthCell & { labels: CalendarWidgetLabel[] };
 
 type DdayCalendarWidgetProps = {
   title: string;
@@ -21,9 +22,8 @@ const APP_LOGO = require('../../../assets/logo.png');
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 // 앱마다 스킴이 달라(개발용 앱은 -dev) 설정 값으로 주소를 만든다.
 const PRO_SETTINGS_URI = Linking.createURL('settings');
-const DOT_SIZE = 4;
 
-/** 이번 달 달력 위젯(Pro). 디데이·기념일이 있는 날에 분류색 점을 찍는다. */
+/** 이번 달 달력 위젯(Pro). 칸마다 첫 일정 이름과 남은 개수(+n)를 보여준다. */
 export function DdayCalendarWidget({
   title,
   cells,
@@ -113,7 +113,8 @@ export function DdayCalendarWidget({
                       flex: 1,
                       flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'center',
+                      justifyContent: 'flex-start',
+                      paddingHorizontal: 1,
                     }}
                   >
                     <FlexWidget
@@ -139,20 +140,42 @@ export function DdayCalendarWidget({
                         }}
                       />
                     </FlexWidget>
-                    <FlexWidget style={{ flexDirection: 'row', height: DOT_SIZE }}>
-                      {cell.dotColors.slice(0, 3).map((color, dotIndex) => (
+                    {cell.labels[0] && (
+                      <FlexWidget
+                        style={{
+                          width: 'match_parent',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginTop: 1,
+                        }}
+                      >
                         <FlexWidget
-                          key={dotIndex}
                           style={{
-                            width: DOT_SIZE,
-                            height: DOT_SIZE,
-                            borderRadius: DOT_SIZE / 2,
-                            marginHorizontal: 1,
-                            backgroundColor: palette[color].dot,
+                            flex: 1,
+                            backgroundColor: palette[cell.labels[0].color].soft,
+                            borderRadius: 3,
+                            paddingHorizontal: 2,
                           }}
-                        />
-                      ))}
-                    </FlexWidget>
+                        >
+                          <TextWidget
+                            text={cell.labels[0].text}
+                            maxLines={1}
+                            truncate="END"
+                            style={{
+                              fontSize: 8,
+                              fontWeight: '600',
+                              color: palette[cell.labels[0].color].text,
+                            }}
+                          />
+                        </FlexWidget>
+                        {cell.labels.length > 1 && (
+                          <TextWidget
+                            text={`+${cell.labels.length - 1}`}
+                            style={{ fontSize: 8, color: colors.textMuted, marginLeft: 1 }}
+                          />
+                        )}
+                      </FlexWidget>
+                    )}
                   </FlexWidget>
                 );
               })}

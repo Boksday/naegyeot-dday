@@ -10,7 +10,8 @@ import { buildMonthGrid, type CalendarEvent, getEventsInRange, shiftMonth } from
 import { calendarStrings } from './strings';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
-const MAX_DOTS = 3;
+/** 칸에 이름으로 보여줄 일정 수. 넘치면 +n으로 표시한다. */
+const MAX_LABELS = 2;
 
 type CalendarViewProps = {
   items: readonly Dday[];
@@ -134,17 +135,29 @@ export function CalendarView({ items, categories, today, onOpenDetail }: Calenda
                     {dayNumber}
                   </Text>
                 </View>
-                <View style={styles.dots}>
-                  {events.slice(0, MAX_DOTS).map((event) => (
-                    <View
-                      key={`${event.itemId}-${event.kind}`}
-                      style={[
-                        styles.dot,
-                        { backgroundColor: colorOf(event.categoryId).dot },
-                        !cell.isCurrentMonth && styles.dotOutside,
-                      ]}
-                    />
-                  ))}
+                <View style={[styles.labels, !cell.isCurrentMonth && styles.labelsOutside]}>
+                  {events.slice(0, MAX_LABELS).map((event) => {
+                    const palette = colorOf(event.categoryId);
+                    return (
+                      <Text
+                        key={`${event.itemId}-${event.kind}`}
+                        numberOfLines={1}
+                        style={[
+                          styles.label,
+                          { backgroundColor: palette.soft, color: palette.text },
+                        ]}
+                      >
+                        {event.kind === 'milestone' && event.dayCount
+                          ? calendarStrings.milestone(event.dayCount)
+                          : event.title}
+                      </Text>
+                    );
+                  })}
+                  {events.length > MAX_LABELS && (
+                    <Text style={styles.more}>
+                      {calendarStrings.more(events.length - MAX_LABELS)}
+                    </Text>
+                  )}
                 </View>
               </Pressable>
             );
@@ -187,7 +200,6 @@ export function CalendarView({ items, categories, today, onOpenDetail }: Calenda
   );
 }
 
-const DOT_SIZE = 5;
 const BUBBLE_SIZE = 34;
 
 const createStyles = ({ colors, shadow }: Theme) =>
@@ -253,7 +265,8 @@ const createStyles = ({ colors, shadow }: Theme) =>
       width: `${100 / 7}%`,
       alignItems: 'center',
       paddingVertical: 3,
-      minHeight: 50,
+      paddingHorizontal: 1,
+      minHeight: 86,
     },
     dayBubble: {
       width: BUBBLE_SIZE,
@@ -278,19 +291,26 @@ const createStyles = ({ colors, shadow }: Theme) =>
     dayTextOutside: {
       opacity: 0.35,
     },
-    dots: {
-      flexDirection: 'row',
+    labels: {
+      alignSelf: 'stretch',
       gap: 2,
-      height: DOT_SIZE + 2,
-      marginTop: 1,
+      marginTop: 2,
     },
-    dot: {
-      width: DOT_SIZE,
-      height: DOT_SIZE,
-      borderRadius: DOT_SIZE / 2,
-    },
-    dotOutside: {
+    labelsOutside: {
       opacity: 0.4,
+    },
+    label: {
+      fontSize: 10,
+      lineHeight: 14,
+      fontWeight: '600',
+      paddingHorizontal: 3,
+      borderRadius: 4,
+      overflow: 'hidden',
+    },
+    more: {
+      fontSize: 10,
+      color: colors.textMuted,
+      textAlign: 'center',
     },
     selectedTitle: {
       fontSize: fontSize.body,
