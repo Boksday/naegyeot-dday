@@ -5,6 +5,7 @@ import { buildMonthGrid, getEventsInRange } from '../calendar/calendarEvents';
 import { calendarStrings } from '../calendar/strings';
 import { parseLocalDate, toLocalDate } from '../dday/logic/dates';
 import { loadDdayData } from '../dday/storage/ddayRepository';
+import { IS_PRO_FREE } from '../../config/appVariant';
 import { loadCachedPro } from '../pro/proCache';
 import { loadThemePreference } from '../settings/themePreference';
 import { CALENDAR_WIDGET_NAME, DdayCalendarWidget } from './DdayCalendarWidget';
@@ -27,7 +28,8 @@ export async function renderDdayWidget(): Promise<React.JSX.Element> {
   const [result, theme, isPro] = await Promise.all([
     loadDdayData(),
     resolveWidgetTheme(),
-    loadCachedPro().catch(() => false),
+    // Pro 무료 빌드는 저장값을 기다리지 않고 연다(설치 직후 위젯이 먼저 그려지는 경우).
+    IS_PRO_FREE ? Promise.resolve(true) : loadCachedPro().catch(() => false),
   ]);
   const entries = result.ok ? buildWidgetEntries(result, today) : null;
   return (
@@ -46,7 +48,8 @@ export async function renderCalendarWidget(): Promise<React.JSX.Element> {
   const [result, theme, isPro] = await Promise.all([
     loadDdayData(),
     resolveWidgetTheme(),
-    loadCachedPro().catch(() => false),
+    // Pro 무료 빌드는 저장값을 기다리지 않고 연다(설치 직후 위젯이 먼저 그려지는 경우).
+    IS_PRO_FREE ? Promise.resolve(true) : loadCachedPro().catch(() => false),
   ]);
   const grid = buildMonthGrid(year, month);
   const first = grid[0]?.date ?? today;

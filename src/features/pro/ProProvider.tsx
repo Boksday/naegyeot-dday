@@ -80,7 +80,10 @@ export function ProProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (IS_PRO_FREE) {
-      saveCachedPro(true).catch(() => undefined);
+      // 위젯이 저장값보다 먼저 그려졌을 수 있어 저장 뒤 다시 그린다.
+      saveCachedPro(true)
+        .then(() => refreshWidget())
+        .catch(() => undefined);
       return;
     }
     let isActive = true;
