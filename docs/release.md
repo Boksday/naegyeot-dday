@@ -35,3 +35,12 @@ npm run build:android:bundle    # Play 업로드용 AAB: android/app/build/outpu
 
 - 개발 빌드(디버그 키)와 출시 빌드(업로드 키)는 서명이 달라 덮어 설치할 수 없다. 지우고 설치하면 기기 데이터가 지워진다.
 - 개발 빌드는 디버그 가능해서 `adb exec-out run-as com.naegyeot.dday cat databases/RKStorage > RKStorage`로 저장 데이터를 꺼낼 수 있다.
+
+## 스토어·광고 관련 주소
+
+- 사이트: https://boksday.github.io (저장소 `Boksday/boksday.github.io`, GitHub Pages)
+- 개인정보처리방침: https://boksday.github.io/dday/privacy/
+- app-ads.txt: https://boksday.github.io/app-ads.txt (`google.com, pub-8663707140300350, DIRECT, f08c47fec0942fa0`)
+- 문의 메일: ekqlszzzz@naver.com
+- Play 스토어 등록정보의 "웹사이트"에 https://boksday.github.io 를 넣어야 AdMob이 app-ads.txt를 확인한다.
+- 앱 동작(수집 항목, 광고 SDK)이 바뀌면 개인정보처리방침도 함께 고친다.

@@ -41,6 +41,6 @@ AdMob 배너를 `react-native-google-mobile-ads`(17.2)로 연결했다. 실제 A
 
 - AdMob 계정·앱 등록, 배너 광고 단위 2개(Android·iOS) 발급 후 `.env`에 입력
 - AdMob에서 GDPR 메시지(동의 양식) 게시
-- `app-ads.txt`를 개발자 웹사이트에 게시, 스토어 개발자 웹사이트 등록
+- ~~`app-ads.txt` 게시~~ 완료(https://boksday.github.io/app-ads.txt). 스토어 등록정보 웹사이트에 https://boksday.github.io 입력 필요
 - 개인정보처리방침에 광고 SDK의 데이터 수집(광고 ID 등) 명시, Play 데이터 보안 양식 작성
 - Pro 구매자는 광고를 숨긴다(docs/pro.md)
