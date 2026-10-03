@@ -23,7 +23,7 @@ npm run build:android:bundle    # Play 업로드용 AAB: android/app/build/outpu
 ## 버전
 
 - `app.json`의 `expo.version`(표시 버전)과 `expo.android.versionCode`(업로드마다 1씩 증가)를 함께 관리한다.
-- 현재: 1.0.0 (versionCode 2). versionCode 1은 내부 테스트에 올라갔다.
+- 현재: 1.0.2 (versionCode 3, 내부 테스트용 Pro 무료 빌드). versionCode 1은 내부 테스트에 올라갔다.
 - 내부 테스트에서 설치한 앱은 Play 앱 서명 키로 서명돼 있어, 로컬 빌드(업로드 키)로 덮어 설치할 수 없다. 새 버전은 내부 테스트로 올려 Play에서 업데이트한다.
 
 ## 출시 빌드에서 달라지는 점
@@ -57,3 +57,11 @@ adb install android/app/build/outputs/apk/release/app-release.apk
 - Pro가 항상 켜져 있고 테스트 광고만 쓴다. 패키지가 달라 스토어에 올라갈 수 없다.
 - `APP_VARIANT`는 prebuild뿐 아니라 gradle 단계(JS 번들, 앱 설정 내장)까지 전달돼야 한다. 스크립트가 `export`로 넘긴다.
 - 이 빌드 뒤에 스토어용을 만들 때는 `npm run build:android:release`/`bundle`이 `prebuild --clean`으로 android/를 다시 만든다.
+
+## 내부 테스트용 Pro 무료 빌드
+
+```sh
+EXPO_PUBLIC_UNLOCK_PRO=1 npm run build:android:bundle
+```
+
+- 결제 없이 Pro(광고 제거, 위젯)가 열린다. **이 AAB를 프로덕션으로 승격하지 않는다.** 정식 출시는 이 값 없이 새로 빌드한다.

@@ -20,7 +20,7 @@ import {
   useState,
 } from 'react';
 
-import { IS_DEV_VARIANT } from '../../config/appVariant';
+import { IS_PRO_FREE } from '../../config/appVariant';
 import { refreshWidget } from '../widget/refreshWidget';
 import { loadCachedPro, saveCachedPro } from './proCache';
 
@@ -47,8 +47,8 @@ function isProPurchase(purchase: Purchase): boolean {
 }
 
 export function ProProvider({ children }: { children: ReactNode }) {
-  // 개발용 앱은 스토어 상품이 없으므로 Pro 기능을 바로 확인할 수 있게 켜 둔다.
-  const [isPro, setIsPro] = useState(IS_DEV_VARIANT);
+  // 개발용 앱·내부 테스트용 빌드는 결제 없이 Pro 기능을 확인할 수 있게 켜 둔다.
+  const [isPro, setIsPro] = useState(IS_PRO_FREE);
   const [storeStatus, setStoreStatus] = useState<StoreStatus>('connecting');
   const [displayPrice, setDisplayPrice] = useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -79,7 +79,7 @@ export function ProProvider({ children }: { children: ReactNode }) {
   }, [applyPro, settle]);
 
   useEffect(() => {
-    if (IS_DEV_VARIANT) {
+    if (IS_PRO_FREE) {
       saveCachedPro(true).catch(() => undefined);
       return;
     }
