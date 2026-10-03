@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Card } from '../../../components/Card';
 import { PrimaryButton } from '../../../components/PrimaryButton';
@@ -41,6 +42,8 @@ function describeNameError(error: CategoryNameError): string {
 
 export function CategoryManageScreen() {
   const styles = useThemedStyles(createStyles);
+  // 하단 내비게이션 바에 마지막 내용이 가려지지 않도록 안전 영역만큼 띄운다.
+  const insets = useSafeAreaInsets();
   const { colors, categoryPalette } = useTheme();
   const { items, categories, addCategory, removeCategory } = useDdayStore();
   const [name, setName] = useState('');
@@ -106,7 +109,10 @@ export function CategoryManageScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxl }]}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{ddayStrings.categoryAdd}</Text>
           <Card style={styles.sectionCard}>

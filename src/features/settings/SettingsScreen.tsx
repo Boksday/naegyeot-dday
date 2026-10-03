@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Card } from '../../components/Card';
 import { useAds } from '../ads/AdsProvider';
@@ -28,6 +29,8 @@ import {
 
 export function SettingsScreen() {
   const styles = useThemedStyles(createStyles);
+  // 하단 내비게이션 바에 마지막 내용이 가려지지 않도록 안전 영역만큼 띄운다.
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { isPrivacyOptionsRequired, showPrivacyOptions } = useAds();
   const [preference, setPreference] = useState<ThemePreference | null>(null);
@@ -68,7 +71,9 @@ export function SettingsScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <ScrollView
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxl }]}
+    >
       <ProSection />
 
       <View style={styles.section}>
