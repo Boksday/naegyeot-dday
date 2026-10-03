@@ -1,3 +1,4 @@
+import * as Linking from 'expo-linking';
 import { FlexWidget, ImageWidget, TextWidget } from 'react-native-android-widget';
 
 import {
@@ -22,7 +23,8 @@ type DdayWidgetProps = {
 };
 
 /** 잠긴 위젯을 누르면 Pro 구매 영역이 있는 설정 화면을 연다. */
-const PRO_SETTINGS_URI = 'naegyeotdday://settings';
+// 앱마다 스킴이 달라(개발용 앱은 -dev) 설정 값으로 주소를 만든다.
+const PRO_SETTINGS_URI = Linking.createURL('settings');
 
 const APP_LOGO = require('../../../assets/logo.png');
 const LOGO_SIZE = 20;

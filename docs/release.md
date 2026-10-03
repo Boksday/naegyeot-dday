@@ -45,3 +45,14 @@ npm run build:android:bundle    # Play 업로드용 AAB: android/app/build/outpu
 - 문의 메일: ekqlszzzz@naver.com
 - Play 스토어 등록정보의 "웹사이트"에 https://boksday.github.io 를 넣어야 AdMob이 app-ads.txt를 확인한다.
 - 앱 동작(수집 항목, 광고 SDK)이 바뀌면 개인정보처리방침도 함께 고친다.
+
+## 개발용 앱 (기기에서 바로 확인)
+
+```sh
+npm run build:android:dev-app   # APP_VARIANT=dev, 패키지 com.naegyeot.dday.dev
+adb install android/app/build/outputs/apk/release/app-release.apk
+```
+
+- 이름 "내곁의 디데이 개발", 스킴 `naegyeotdday-dev`. 스토어 앱과 나란히 설치되고 데이터도 따로 쓴다.
+- Pro가 항상 켜져 있고 테스트 광고만 쓴다. 패키지가 달라 스토어에 올라갈 수 없다.
+- 이 빌드 뒤에 스토어용을 만들 때는 `npm run build:android:release`/`bundle`이 `prebuild --clean`으로 android/를 다시 만든다.

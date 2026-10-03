@@ -1,3 +1,4 @@
+import * as Linking from 'expo-linking';
 import { FlexWidget, ImageWidget, TextWidget } from 'react-native-android-widget';
 
 import type { MonthCell } from '../calendar/calendarEvents';
@@ -18,7 +19,8 @@ type DdayCalendarWidgetProps = {
 
 const APP_LOGO = require('../../../assets/logo.png');
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
-const PRO_SETTINGS_URI = 'naegyeotdday://settings';
+// 앱마다 스킴이 달라(개발용 앱은 -dev) 설정 값으로 주소를 만든다.
+const PRO_SETTINGS_URI = Linking.createURL('settings');
 const DOT_SIZE = 4;
 
 /** 이번 달 달력 위젯(Pro). 디데이·기념일이 있는 날에 분류색 점을 찍는다. */

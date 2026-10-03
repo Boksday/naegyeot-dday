@@ -53,8 +53,9 @@
     "test": "jest --watch",
     "test:ci": "jest --ci",
     "verify": "npm run typecheck && npm run lint && npm run format:check && npm run test:ci",
-    "build:android:release": "expo prebuild --platform android --no-install && cd android && ./gradlew assembleRelease",
-    "build:android:bundle": "expo prebuild --platform android --no-install && cd android && ./gradlew bundleRelease"
+    "build:android:release": "expo prebuild --platform android --no-install --clean && cd android && ./gradlew assembleRelease",
+    "build:android:bundle": "expo prebuild --platform android --no-install --clean && cd android && ./gradlew bundleRelease",
+    "build:android:dev-app": "APP_VARIANT=dev expo prebuild --platform android --no-install --clean && cd android && ./gradlew assembleRelease"
   },
   "private": true,
   "jest": {
