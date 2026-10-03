@@ -4,6 +4,8 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 
 import { Card } from '../../components/Card';
 import { useAds } from '../ads/AdsProvider';
+import { exportBackup, pickBackup } from '../backup/backupActions';
+import { useDdayStore } from '../dday/DdayStoreProvider';
 import { usePro } from '../pro/ProProvider';
 import { PrimaryButton } from '../../components/PrimaryButton';
 import {
@@ -109,6 +111,8 @@ export function SettingsScreen() {
         </Card>
       </View>
 
+      <BackupSection />
+
       {isPrivacyOptionsRequired && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{settingsStrings.privacySection}</Text>
@@ -134,6 +138,95 @@ export function SettingsScreen() {
 
       {__DEV__ && <DevNotificationTools />}
     </ScrollView>
+  );
+}
+
+function showError(title: string, error: unknown) {
+  Alert.alert(title, error instanceof Error ? error.message : String(error));
+}
+
+function BackupSection() {
+  const styles = useThemedStyles(createStyles);
+  const { items, categories, mergeFromBackup, replaceWithBackup } = useDdayStore();
+  const [isBusy, setIsBusy] = useState(false);
+
+  const run = (task: () => Promise<void>, failTitle: string) => {
+    if (isBusy) return;
+    setIsBusy(true);
+    task()
+      .catch((error: unknown) => showError(failTitle, error))
+      .finally(() => setIsBusy(false));
+  };
+
+  const startRestore = async () => {
+    const result = await pickBackup();
+    if (!result) return;
+    if (!result.ok) {
+      Alert.alert(
+        settingsStrings.restoreFailed,
+        result.reason === 'unsupported-version'
+          ? settingsStrings.restoreNewer
+          : settingsStrings.restoreInvalid,
+      );
+      return;
+    }
+    const { data } = result;
+    Alert.alert(
+      settingsStrings.restoreConfirmTitle,
+      settingsStrings.restoreConfirmBody(data.items.length, data.categories.length),
+      [
+        { text: settingsStrings.cancel, style: 'cancel' },
+        {
+          text: settingsStrings.restoreReplace,
+          style: 'destructive',
+          onPress: () =>
+            run(async () => {
+              await replaceWithBackup(data);
+              Alert.alert(settingsStrings.restoreReplaced);
+            }, settingsStrings.restoreFailed),
+        },
+        {
+          text: settingsStrings.restoreMerge,
+          onPress: () =>
+            run(async () => {
+              const added = await mergeFromBackup(data);
+              Alert.alert(settingsStrings.restoreMerged(added));
+            }, settingsStrings.restoreFailed),
+        },
+      ],
+    );
+  };
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{settingsStrings.backupSection}</Text>
+      <Card style={styles.list}>
+        <Pressable
+          accessibilityRole="button"
+          disabled={isBusy}
+          onPress={() =>
+            run(
+              () => exportBackup({ items, categories }, settingsStrings.backupShareTitle),
+              settingsStrings.backupFailed,
+            )
+          }
+          style={styles.row}
+        >
+          <Text style={styles.rowLabel}>{settingsStrings.backupExport}</Text>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          disabled={isBusy}
+          onPress={() => run(startRestore, settingsStrings.restoreFailed)}
+          style={[styles.row, styles.rowDivider]}
+        >
+          <Text style={styles.rowLabel}>{settingsStrings.backupImport}</Text>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+      </Card>
+      <Text style={styles.hint}>{settingsStrings.backupHint}</Text>
+    </View>
   );
 }
 

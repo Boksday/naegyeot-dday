@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   endConnection,
   ErrorCode,
@@ -21,10 +20,11 @@ import {
   useState,
 } from 'react';
 
+import { refreshWidget } from '../widget/refreshWidget';
+import { loadCachedPro, saveCachedPro } from './proCache';
+
 /** Play Console에 등록할 일회성(관리형) 상품 ID. docs/pro.md */
 export const PRO_PRODUCT_ID = 'naegyeot_dday_pro';
-/** 오프라인에서도 Pro를 유지하기 위한 기기 저장 값. 스토어 확인이 되면 그 결과로 덮어쓴다. */
-const PRO_CACHE_KEY = 'naegyeot-dday:pro';
 
 type StoreStatus = 'connecting' | 'ready' | 'unavailable';
 
@@ -54,9 +54,12 @@ export function ProProvider({ children }: { children: ReactNode }) {
 
   const applyPro = useCallback((next: boolean) => {
     setIsPro(next);
-    AsyncStorage.setItem(PRO_CACHE_KEY, next ? '1' : '0').catch((error: unknown) => {
-      console.warn('Pro 상태 저장 실패', error);
-    });
+    saveCachedPro(next)
+      // 홈 위젯은 Pro 전용이라 상태가 바뀌면 다시 그린다.
+      .then(() => refreshWidget())
+      .catch((error: unknown) => {
+        console.warn('Pro 상태 저장 실패', error);
+      });
   }, []);
 
   /** 완료 처리(acknowledge)를 하지 않으면 Google이 3일 뒤 자동 환불한다. */
@@ -75,9 +78,9 @@ export function ProProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let isActive = true;
-    AsyncStorage.getItem(PRO_CACHE_KEY)
+    loadCachedPro()
       .then((cached) => {
-        if (isActive && cached === '1') setIsPro(true);
+        if (isActive && cached) setIsPro(true);
       })
       .catch(() => undefined);
 

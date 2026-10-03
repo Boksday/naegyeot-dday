@@ -21,7 +21,13 @@ import {
   type NotificationSyncResult,
   syncNotifications,
 } from './notifications/notificationScheduler';
-import { type LoadResult, loadDdayData, saveDdayData } from './storage/ddayRepository';
+import { mergeBackup } from '../backup/backupFile';
+import {
+  type LoadResult,
+  loadDdayData,
+  saveBeforeRestoreSnapshot,
+  saveDdayData,
+} from './storage/ddayRepository';
 import type { Category, Dday, DdayData, DdayInput } from './types';
 
 type LoadState = { status: 'loading' } | { status: 'ready' } | { status: 'error'; reason: string };
@@ -36,6 +42,10 @@ type DdayStore = {
   updateDday: (id: string, input: DdayInput) => Promise<void>;
   removeDday: (id: string) => Promise<void>;
   reorderDdays: (orderedIds: readonly string[]) => Promise<void>;
+  /** 백업의 디데이 중 없는 것만 더한다. 더한 개수를 돌려준다. */
+  mergeFromBackup: (incoming: DdayData) => Promise<number>;
+  /** 지금 기록을 백업으로 통째로 바꾼다. 바꾸기 전 기록은 따로 보관한다. */
+  replaceWithBackup: (incoming: DdayData) => Promise<void>;
   addCategory: (name: string, color: CategoryColorKey) => Promise<Category>;
   removeCategory: (id: string) => Promise<void>;
 };
@@ -200,6 +210,23 @@ export function DdayStoreProvider({ children }: { children: ReactNode }) {
     [mutate],
   );
 
+  const mergeFromBackup = useCallback(
+    (incoming: DdayData) =>
+      mutate((current) => {
+        const { next, added } = mergeBackup(current, incoming);
+        return { next, result: added };
+      }),
+    [mutate],
+  );
+
+  const replaceWithBackup = useCallback(
+    async (incoming: DdayData) => {
+      await saveBeforeRestoreSnapshot(dataRef.current);
+      await mutate(() => ({ next: incoming, result: undefined }));
+    },
+    [mutate],
+  );
+
   const addCategory = useCallback(
     (name: string, color: CategoryColorKey) =>
       mutate((current) => {
@@ -236,6 +263,8 @@ export function DdayStoreProvider({ children }: { children: ReactNode }) {
       updateDday,
       removeDday,
       reorderDdays,
+      mergeFromBackup,
+      replaceWithBackup,
       addCategory,
       removeCategory,
     }),
@@ -248,6 +277,8 @@ export function DdayStoreProvider({ children }: { children: ReactNode }) {
       updateDday,
       removeDday,
       reorderDdays,
+      mergeFromBackup,
+      replaceWithBackup,
       addCategory,
       removeCategory,
     ],

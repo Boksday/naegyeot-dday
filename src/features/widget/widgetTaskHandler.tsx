@@ -3,6 +3,7 @@ import type { WidgetTaskHandlerProps } from 'react-native-android-widget';
 
 import { toLocalDate } from '../dday/logic/dates';
 import { loadDdayData } from '../dday/storage/ddayRepository';
+import { loadCachedPro } from '../pro/proCache';
 import { loadThemePreference } from '../settings/themePreference';
 import { DdayWidget, type WidgetTheme } from './DdayWidget';
 import { buildWidgetEntries, formatWidgetDate } from './widgetEntries';
@@ -20,9 +21,20 @@ async function resolveWidgetTheme(): Promise<WidgetTheme> {
 
 export async function renderDdayWidget(): Promise<React.JSX.Element> {
   const today = toLocalDate(new Date());
-  const [result, theme] = await Promise.all([loadDdayData(), resolveWidgetTheme()]);
+  const [result, theme, isPro] = await Promise.all([
+    loadDdayData(),
+    resolveWidgetTheme(),
+    loadCachedPro().catch(() => false),
+  ]);
   const entries = result.ok ? buildWidgetEntries(result, today) : null;
-  return <DdayWidget entries={entries} todayText={formatWidgetDate(today)} theme={theme} />;
+  return (
+    <DdayWidget
+      entries={entries}
+      todayText={formatWidgetDate(today)}
+      theme={theme}
+      isLocked={!isPro}
+    />
+  );
 }
 
 export async function widgetTaskHandler({ widgetAction, renderWidget }: WidgetTaskHandlerProps) {

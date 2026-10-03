@@ -17,7 +17,12 @@ type DdayWidgetProps = {
   entries: WidgetEntry[] | null;
   todayText: string;
   theme: WidgetTheme;
+  /** 홈 위젯은 Pro 전용이다. 잠겨 있으면 디데이 대신 Pro 안내를 보여준다. */
+  isLocked?: boolean;
 };
+
+/** 잠긴 위젯을 누르면 Pro 구매 영역이 있는 설정 화면을 연다. */
+const PRO_SETTINGS_URI = 'naegyeotdday://settings';
 
 const APP_LOGO = require('../../../assets/logo.png');
 const LOGO_SIZE = 20;
@@ -29,12 +34,13 @@ function paletteFor(theme: WidgetTheme): { colors: ThemeColors; palette: Categor
     : { colors: lightColors, palette: lightCategoryPalette };
 }
 
-export function DdayWidget({ entries, todayText, theme }: DdayWidgetProps) {
+export function DdayWidget({ entries, todayText, theme, isLocked = false }: DdayWidgetProps) {
   const { colors, palette } = paletteFor(theme);
 
   return (
     <FlexWidget
-      clickAction="OPEN_APP"
+      clickAction={isLocked ? 'OPEN_URI' : 'OPEN_APP'}
+      clickActionData={isLocked ? { uri: PRO_SETTINGS_URI } : undefined}
       style={{
         height: 'match_parent',
         width: 'match_parent',
@@ -63,7 +69,25 @@ export function DdayWidget({ entries, todayText, theme }: DdayWidgetProps) {
         <TextWidget text={todayText} style={{ fontSize: 11, color: colors.textMuted }} />
       </FlexWidget>
 
-      {entries === null || entries.length === 0 ? (
+      {isLocked ? (
+        <FlexWidget
+          style={{
+            width: 'match_parent',
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <TextWidget
+            text="홈 화면 위젯은 Pro 기능이에요"
+            style={{ fontSize: 14, fontWeight: '700', color: colors.text }}
+          />
+          <TextWidget
+            text="눌러서 알아보기"
+            style={{ fontSize: 12, color: colors.primaryText, marginTop: 6 }}
+          />
+        </FlexWidget>
+      ) : entries === null || entries.length === 0 ? (
         <FlexWidget
           style={{
             width: 'match_parent',
