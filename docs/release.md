@@ -23,7 +23,8 @@ npm run build:android:bundle    # Play 업로드용 AAB: android/app/build/outpu
 ## 버전
 
 - `app.json`의 `expo.version`(표시 버전)과 `expo.android.versionCode`(업로드마다 1씩 증가)를 함께 관리한다.
-- 현재: 1.0.0 (versionCode 1)
+- 현재: 1.0.0 (versionCode 2). versionCode 1은 내부 테스트에 올라갔다.
+- 내부 테스트에서 설치한 앱은 Play 앱 서명 키로 서명돼 있어, 로컬 빌드(업로드 키)로 덮어 설치할 수 없다. 새 버전은 내부 테스트로 올려 Play에서 업데이트한다.
 
 ## 출시 빌드에서 달라지는 점
 

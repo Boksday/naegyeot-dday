@@ -2,15 +2,15 @@ import type { Dday } from '../types';
 import { daysBetween, getYear, type LocalDate, sameDayInYear } from './dates';
 import { lunarToSolarForYear } from './lunar';
 
-type Schedulable = Pick<Dday, 'date' | 'repeatYearly' | 'calendar' | 'lunar'>;
+export type Schedulable = Pick<Dday, 'date' | 'repeatYearly' | 'calendar' | 'lunar'>;
 
 /** 매년 반복 디데이가 그해에 돌아오는 양력 날짜. 음력이면 그해 음력 날짜를 양력으로 바꾼다. */
-function occurrenceInYear(item: Schedulable, year: number): LocalDate | null {
+export function occurrenceInYear(item: Schedulable, year: number): LocalDate | null {
   if (item.calendar === 'lunar' && item.lunar) return lunarToSolarForYear(item.lunar, year);
   return sameDayInYear(item.date, year);
 }
 
-function baseYear(item: Schedulable): number {
+export function baseYear(item: Schedulable): number {
   return item.calendar === 'lunar' && item.lunar ? item.lunar.year : getYear(item.date);
 }
 

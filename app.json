@@ -17,7 +17,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.naegyeot.dday",
-      "versionCode": 1,
+      "versionCode": 2,
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
@@ -48,6 +48,18 @@
               "resizeMode": "horizontal|vertical",
               "updatePeriodMillis": 3600000,
               "previewImage": "./assets/widget-preview.png"
+            },
+            {
+              "name": "DdayCalendarWidget",
+              "label": "내곁의 디데이 달력",
+              "description": "이번 달 디데이를 달력으로 보여줘요 (Pro)",
+              "minWidth": "250dp",
+              "minHeight": "250dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 4,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 3600000,
+              "previewImage": "./assets/widget-calendar-preview.png"
             }
           ]
         }

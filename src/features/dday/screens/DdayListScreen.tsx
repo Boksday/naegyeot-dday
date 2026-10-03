@@ -1,6 +1,15 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import ReorderableList, {
   type ReorderableListReorderEvent,
   reorderItems,
@@ -25,9 +34,13 @@ import { SortSheet } from '../components/SortSheet';
 import { useDdayStore } from '../DdayStoreProvider';
 import { useSortMode } from '../hooks/useSortMode';
 import { useToday } from '../hooks/useToday';
+import { useViewMode } from '../hooks/useViewMode';
+import { VIEW_MODES } from '../listPreferences';
 import { formatKoreanDate } from '../logic/dates';
 import { sortDdays } from '../logic/sorting';
 import { AdBanner } from '../../ads/AdBanner';
+import { CalendarView } from '../../calendar/CalendarView';
+import { calendarStrings } from '../../calendar/strings';
 import { settingsStrings } from '../../settings/strings';
 import { ddayStrings } from '../strings';
 import type { Category, Dday } from '../types';
@@ -45,7 +58,9 @@ export function DdayListScreen() {
   const { items, categories, loadState, notificationSync, reload, reorderDdays } = useDdayStore();
   const [sortMode, setSortMode] = useSortMode();
   const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
-  const isManual = sortMode === 'manual';
+  const [viewMode, setViewMode] = useViewMode();
+  const isCalendar = viewMode === 'calendar';
+  const isManual = sortMode === 'manual' && !isCalendar;
   const [selectedFilter, setFilter] = useState<CategoryFilter>(ALL_CATEGORIES);
   // 고른 분류가 삭제되면 전체로 돌아간다.
   const filter = categories.some((category) => category.id === selectedFilter)
@@ -149,17 +164,36 @@ export function DdayListScreen() {
       />
       {items.length > 0 && (
         <View style={styles.sortRow}>
-          <Text style={styles.count}>{ddayStrings.countSummary(visible.length)}</Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`${ddayStrings.sortTitle}, ${ddayStrings.sortLabels[sortMode]}`}
-            onPress={() => setIsSortSheetOpen(true)}
-            style={({ pressed }) => [styles.sortButton, pressed && styles.fabPressed]}
-          >
-            <Text style={styles.sortButtonText}>
-              {ddayStrings.sortButton(ddayStrings.sortLabels[sortMode])}
-            </Text>
-          </Pressable>
+          <View style={styles.viewToggle} accessibilityRole="tablist">
+            {VIEW_MODES.map((mode) => {
+              const selected = viewMode === mode;
+              return (
+                <Pressable
+                  key={mode}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected }}
+                  onPress={() => setViewMode(mode)}
+                  style={[styles.viewOption, selected && styles.viewOptionSelected]}
+                >
+                  <Text style={[styles.viewText, selected && styles.viewTextSelected]}>
+                    {mode === 'list' ? calendarStrings.viewList : calendarStrings.viewCalendar}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          {!isCalendar && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${ddayStrings.sortTitle}, ${ddayStrings.sortLabels[sortMode]}`}
+              onPress={() => setIsSortSheetOpen(true)}
+              style={({ pressed }) => [styles.sortButton, pressed && styles.fabPressed]}
+            >
+              <Text style={styles.sortButtonText}>
+                {ddayStrings.sortButton(ddayStrings.sortLabels[sortMode])}
+              </Text>
+            </Pressable>
+          )}
         </View>
       )}
       {isManual && items.length > 1 && (
@@ -189,29 +223,46 @@ export function DdayListScreen() {
     <View style={styles.container}>
       {/* + 버튼이 하단 광고 높이와 상관없이 목록 영역 아래에 붙도록 감싼다. */}
       <View style={styles.listArea}>
-        <ReorderableList
-          data={visible}
-          keyExtractor={(item) => item.id}
-          onReorder={handleReorder}
-          dragEnabled={isManual}
-          shouldUpdateActiveItem
-          renderItem={({ item }) => (
-            <ReorderableCard
-              item={item}
-              category={categoryById.get(item.categoryId)}
+        {isCalendar && items.length > 0 ? (
+          <ScrollView
+            contentContainerStyle={[
+              styles.list,
+              { paddingTop: insets.top + spacing.lg, paddingBottom: FAB_SIZE + 48 },
+            ]}
+          >
+            {header}
+            <CalendarView
+              items={visible}
+              categories={categories}
               today={today}
-              onPress={openDetail}
-              onMove={isManual ? moveByOne : undefined}
+              onOpenDetail={openDetail}
             />
-          )}
-          contentContainerStyle={[
-            styles.list,
-            { paddingTop: insets.top + spacing.lg, paddingBottom: FAB_SIZE + 48 },
-          ]}
-          ItemSeparatorComponent={Separator}
-          ListHeaderComponent={header}
-          ListEmptyComponent={empty}
-        />
+          </ScrollView>
+        ) : (
+          <ReorderableList
+            data={visible}
+            keyExtractor={(item) => item.id}
+            onReorder={handleReorder}
+            dragEnabled={isManual}
+            shouldUpdateActiveItem
+            renderItem={({ item }) => (
+              <ReorderableCard
+                item={item}
+                category={categoryById.get(item.categoryId)}
+                today={today}
+                onPress={openDetail}
+                onMove={isManual ? moveByOne : undefined}
+              />
+            )}
+            contentContainerStyle={[
+              styles.list,
+              { paddingTop: insets.top + spacing.lg, paddingBottom: FAB_SIZE + 48 },
+            ]}
+            ItemSeparatorComponent={Separator}
+            ListHeaderComponent={header}
+            ListEmptyComponent={empty}
+          />
+        )}
         {items.length > 0 && (
           <Pressable
             accessibilityRole="button"
@@ -321,6 +372,29 @@ const createStyles = ({ colors, shadow }: Theme) =>
     today: {
       fontSize: fontSize.caption,
       color: colors.textMuted,
+    },
+    viewToggle: {
+      flexDirection: 'row',
+      padding: 3,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surfaceMuted,
+    },
+    viewOption: {
+      minHeight: 32,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.pill,
+    },
+    viewOptionSelected: {
+      backgroundColor: colors.surface,
+    },
+    viewText: {
+      fontSize: fontSize.caption,
+      color: colors.textMuted,
+    },
+    viewTextSelected: {
+      color: colors.text,
+      fontWeight: '700',
     },
     sortRow: {
       flexDirection: 'row',

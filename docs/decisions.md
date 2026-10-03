@@ -94,3 +94,9 @@
 
 - 홈 위젯은 Pro 전용(사용자 결정). Android는 위젯 목록에서 위젯을 숨길 수 없어, 무료 사용자의 위젯은 "Pro 기능" 안내를 보여주고 누르면 `naegyeotdday://settings`(Pro 구매 영역)를 연다. 위젯은 기기에 저장한 Pro 여부(`naegyeot-dday:pro`)로 판단하고, Pro 상태가 바뀌면 다시 그린다.
 - 파일 백업: 저장 형식 그대로의 데이터에 앱 표시를 붙인 JSON. 옛 백업은 저장소 마이그레이션으로 읽는다. 기본은 합치기(데이터 손실 없음), 바꾸기는 직전 기록을 `naegyeot-dday:store:before-restore`에 남긴다. 백업은 무료 기능이다.
+
+## 2026-10-03 달력 보기와 달력 위젯
+
+- 달력 계산은 `src/features/calendar/calendarEvents.ts` 하나로 앱 달력과 위젯이 함께 쓴다. 매년 반복은 기준 날짜 이후만, 음력은 해마다 양력으로 바꿔 표시한다.
+- 달력 위젯(`DdayCalendarWidget`, 4×4)도 Pro 전용이다. 위젯 고르기 미리보기는 예시 데이터로 그린 이미지다.
+- versionCode 2부터: 첫 AAB(versionCode 1)가 내부 테스트에 올라가 Play 서명 버전이 기기에 설치됐다. 이후 기기 확인은 내부 테스트 업데이트로 한다(로컬 업로드 키 APK는 서명이 달라 덮어 설치할 수 없다).

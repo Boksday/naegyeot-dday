@@ -28,7 +28,7 @@ const APP_LOGO = require('../../../assets/logo.png');
 const LOGO_SIZE = 20;
 const DOT_SIZE = 8;
 
-function paletteFor(theme: WidgetTheme): { colors: ThemeColors; palette: CategoryPalette } {
+export function paletteFor(theme: WidgetTheme): { colors: ThemeColors; palette: CategoryPalette } {
   return theme === 'dark'
     ? { colors: darkColors, palette: darkCategoryPalette }
     : { colors: lightColors, palette: lightCategoryPalette };

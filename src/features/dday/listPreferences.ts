@@ -12,3 +12,20 @@ export async function loadSortMode(): Promise<SortMode> {
 export async function saveSortMode(mode: SortMode): Promise<void> {
   await AsyncStorage.setItem(SORT_MODE_KEY, mode);
 }
+
+export const VIEW_MODES = ['list', 'calendar'] as const;
+export type ViewMode = (typeof VIEW_MODES)[number];
+const VIEW_MODE_KEY = 'naegyeot-dday:list-view-mode';
+
+function isViewMode(value: unknown): value is ViewMode {
+  return VIEW_MODES.some((mode) => mode === value);
+}
+
+export async function loadViewMode(): Promise<ViewMode> {
+  const raw = await AsyncStorage.getItem(VIEW_MODE_KEY);
+  return isViewMode(raw) ? raw : 'list';
+}
+
+export async function saveViewMode(mode: ViewMode): Promise<void> {
+  await AsyncStorage.setItem(VIEW_MODE_KEY, mode);
+}
